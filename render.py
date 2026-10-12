@@ -21,6 +21,8 @@ SECTION_TITLES = {
     "watch": "Watch",
     "read": "Read",
 }
+# Generated print on each folder's back panel (see PRESETS in template.html)
+SECTION_ART = {"top": "aurora", "fed": "verdant", "listen": "dusk", "watch": "ember", "read": "glacier", "radar": "none"}
 ITEM_FIELDS = {"id", "title", "url", "source", "meta", "summary", "why", "deeper", "related"}
 SNAPSHOT_FIELDS = {"label", "value", "note", "url"}
 
@@ -102,11 +104,18 @@ def render_row(sec_key, it):
 
 
 def render_card(key, title, body, count=None):
-    badge = f'<span class="card-count">{count}</span>' if count is not None else ""
+    """A section drawn as a glass folder: art on the back, sheets in the pocket, frosted front."""
+    meta = f"{count} item{'s' if count != 1 else ''}" if count is not None else "This week"
     return f"""
-    <section class="card card-{key}" id="{key}" aria-labelledby="{key}-h">
-      <h2 class="card-title" id="{key}-h">{title}{badge}</h2>
-      {body}
+    <section class="folder card-{key}" id="{key}" data-art="{SECTION_ART[key]}" aria-labelledby="{key}-h">
+      <div class="f-shadow" aria-hidden="true"></div>
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-sheets" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"><path/></svg>
+        <div class="f-label"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count or 0}">{meta}</span></div>
+        {body}
+      </div>
     </section>"""
 
 
@@ -201,10 +210,10 @@ def render_archive_index():
     head = page.split("<body", 1)[0].replace("{{TITLE}}", "Brief · Archive").replace("{{BASE}}", "../")
     return f"""{head}<body class="archive-page">
   <header class="top"><div class="top-row">
-    <a class="brand" href="../index.html">Daily Brief</a><span class="top-date">Archive</span>
+    <a class="brand" href="../index.html">Daily Brief</a><span class="top-date">ARCHIVE</span>
   </div></header>
   <main class="wrap">
-    <section class="card"><ul class="radar archive">{''.join(rows)}</ul></section>
+    <section class="paper"><ul class="radar archive">{''.join(rows)}</ul></section>
   </main>
 </body>
 </html>
