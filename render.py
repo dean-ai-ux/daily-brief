@@ -21,9 +21,9 @@ SECTION_TITLES = {
     "watch": "Watch",
     "read": "Read",
 }
-# Generated print on each folder's back panel (see PRESETS in template.html)
+# Generated print on each folder's tab strip (see PRESETS in template.html)
 SECTION_ART = {"top": "aurora", "fed": "verdant", "listen": "dusk", "watch": "ember", "read": "glacier", "radar": "none"}
-ITEM_FIELDS = {"id", "title", "url", "source", "meta", "summary", "why", "deeper", "related"}
+ITEM_FIELDS = {"id", "title", "url", "source", "meta", "gist", "summary", "why", "deeper", "related"}
 SNAPSHOT_FIELDS = {"label", "value", "note", "url"}
 
 
@@ -61,6 +61,8 @@ def validate(d):
                 fail(f"duplicate item id {it['id']!r}")
             if not is_url(it["url"]):
                 fail(f"item {it['id']!r} url must be absolute")
+            if len(it.get("gist", "")) > 120:
+                fail(f"item {it['id']!r} gist must be one line (≤ 120 chars)")
             deeper = it.get("deeper", [])
             if not (isinstance(deeper, list) and all(isinstance(x, str) for x in deeper)) or len(deeper) > 5:
                 fail(f"item {it['id']!r} 'deeper' must be a list of at most 5 strings")
@@ -84,58 +86,76 @@ def validate(d):
             fail("snapshot url must be absolute")
 
 
-ACTS = """<div class="row-acts">
-            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
-            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
-          </div>"""
+CHECK = """<button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>"""
+NOPE = """<button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>"""
 
 
-def render_row(sec_key, it):
+def gist_of(it):
+    """The one-line takeaway; falls back to the summary's first sentence."""
+    if it.get("gist"):
+        return it["gist"]
+    first = re.split(r"(?<=[.!?])\s", it["summary"], maxsplit=1)[0]
+    return first
+
+
+def render_row(it, lead=False):
     source = " · ".join(escape(x) for x in (it.get("source"), it.get("meta")) if x)
+    if lead:
+        why = f'<span class="row-why"><b>Why it matters</b> {escape(it["why"])}</span>' if it.get("why") else ""
+        body = f'<span class="row-sum">{escape(it["summary"])}</span>{why}'
+    else:
+        body = f'<span class="row-gist">{escape(gist_of(it))}</span>'
     return f"""
-        <li class="row" data-id="{escape(it['id'], quote=True)}">
+        <li class="row{' row-lead' if lead else ''}" data-id="{escape(it['id'], quote=True)}">
+          {CHECK}
           <button type="button" class="row-open" aria-haspopup="dialog">
-            {f'<span class="row-src">{source}</span>' if source else ''}
             <span class="row-title">{escape(it['title'])}</span>
-            <span class="row-sum">{escape(it['summary'])}</span>
+            {body}
+            {f'<span class="row-src">{source}</span>' if source else ''}
           </button>
-          {ACTS}
+          {NOPE}
         </li>"""
 
 
 def render_card(key, title, body, count=None):
-    """A section drawn as a glass folder: art on the back, sheets in the pocket, frosted front."""
+    """A section as a folder: today's art on the tab strip, everything readable on solid paper."""
     meta = f"{count} item{'s' if count != 1 else ''}" if count is not None else "This week"
     return f"""
     <section class="folder card-{key}" id="{key}" data-art="{SECTION_ART[key]}" aria-labelledby="{key}-h">
-      <div class="f-shadow" aria-hidden="true"></div>
-      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
-      <div class="f-sheets" aria-hidden="true"><i></i><i></i><i></i></div>
-      <div class="f-front">
-        <svg class="f-rim" aria-hidden="true"><path/></svg>
-        <div class="f-label"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count or 0}">{meta}</span></div>
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count or 0}">{meta}</span></header>
         {body}
       </div>
     </section>"""
 
 
 def render_grid(d):
+    """Two tiers on desktop: Top of mind beside Fed watch + radar, then Listen | Watch | Read.
+    On smaller screens the tiers dissolve (display: contents) into one ordered grid."""
     by_key = {s["key"]: s for s in d["sections"] if s.get("items")}
-    cards = []
+    cards = {}
     for key, title in SECTION_TITLES.items():
         sec = by_key.get(key)
         if sec:
-            rows = "".join(render_row(key, it) for it in sec["items"])
-            cards.append(render_card(key, title, f'<ul class="rows">{rows}</ul>', len(sec["items"])))
+            rows = "".join(render_row(it, lead=(key == "top" and i == 0)) for i, it in enumerate(sec["items"]))
+            cards[key] = render_card(key, title, f'<ul class="rows">{rows}</ul>', len(sec["items"]))
     radar = d.get("radar", [])
     if radar:
         lis = "".join(
             f'<li><span class="radar-when">{escape(r["when"])}</span><span class="radar-what">{escape(r["what"])}</span></li>'
             for r in radar
         )
-        cards.append(render_card("radar", "On the radar", f'<ul class="radar">{lis}</ul>'))
-    flags = " ".join(f"has-{k}" for k in list(by_key) + (["radar"] if radar else []))
-    return f'<div class="grid {flags}">{"".join(cards)}</div>'
+        cards["radar"] = render_card("radar", "On the radar", f'<ul class="radar">{lis}</ul>')
+    aside = "".join(cards.get(k, "") for k in ("fed", "radar"))
+    secondary = [cards[k] for k in ("listen", "watch", "read") if k in cards]
+    primary_cls = "tier tier-primary" + ("" if aside else " solo")
+    return (
+        f'<div class="board">'
+        f'<div class="{primary_cls}">{cards.get("top", "")}'
+        + (f'<div class="aside">{aside}</div>' if aside else "")
+        + f'</div><div class="tier tier-secondary" style="--n:{max(1, len(secondary))}">{"".join(secondary)}</div></div>'
+    )
 
 
 def render_snapshot(d):
@@ -161,7 +181,7 @@ def page_data(d):
             items.append({
                 "id": it["id"], "section": sec["key"], "sectionTitle": SECTION_TITLES[sec["key"]],
                 "title": it["title"], "url": it["url"], "source": it.get("source", ""),
-                "meta": it.get("meta", ""), "summary": it["summary"], "why": it.get("why", ""),
+                "meta": it.get("meta", ""), "gist": gist_of(it), "summary": it["summary"], "why": it.get("why", ""),
                 "deeper": it.get("deeper", []), "related": it.get("related", []),
             })
     # "</" would let item text close the <script> tag early

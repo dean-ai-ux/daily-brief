@@ -62,8 +62,9 @@ Rank by: matches interests.md → feedback patterns → genuine importance → n
 A story in `top` should not also appear in `read`.
 
 ## 4. Write `data/$TODAY.json`
-The page is a dashboard: each item shows as one compact row, and tapping it opens a detail
-panel with the summary, why it matters, **Go deeper** bullets and **Related** links. The
+The page is a dashboard: each item shows its full headline plus a one-line **gist**, and
+tapping it opens a detail panel with the summary, why it matters, **Go deeper** bullets and
+**Related** links. The first `top` item is the lead story and also shows its summary and `why`. The
 click-in is where Dean learns more, so fill `deeper` and `related` for every `top` and `fed`
 item and wherever else you have good material.
 ```json
@@ -79,11 +80,12 @@ item and wherever else you have good material.
     {"key": "top", "items": [
       {
         "id": "nobel-hall-woodford",
-        "title": "Headline in sentence case (≤ 80 chars; it's clamped to 2 lines)",
+        "title": "Headline in sentence case (≤ 80 chars; shown in full)",
         "url": "https://…",
         "source": "NYT",
         "meta": "Optional: '6 min read' / '58 min · guest: Austan Goolsbee' / 'YouTube · 14 min'",
-        "summary": "Two sentences max: what happened.",
+        "gist": "One line (≤ 100 chars): the takeaway, shown under the headline. Don't repeat the title.",
+        "summary": "Two sentences max: what happened. Shown in the click-in.",
         "why": "One sentence: why it matters to Dean. Required in top; optional elsewhere.",
         "deeper": ["2–4 short factual bullets of context, numbers, history or what to watch next."],
         "related": [{"title": "Source: headline", "url": "https://…"}]
@@ -106,7 +108,9 @@ item and wherever else you have good material.
   URLs you actually saw. Both optional; omit rather than pad.
 - `id`: short kebab-case, unique within the day (3–60 chars, a–z 0–9 -).
 - `generated`: current ET time with offset (`TZ=America/New_York date -Iseconds`).
-- Allowed item fields only: id, title, url, source, meta, summary, why, deeper, related.
+- `gist` is required on every item in practice (the page falls back to the summary's first
+  sentence, which reads worse). Put the most important item first in `top`: it's the lead.
+- Allowed item fields only: id, title, url, source, meta, gist, summary, why, deeper, related.
 - Plain text everywhere (no markdown, no HTML). Tight, specific, no hype.
 
 ## 5. Render and check
