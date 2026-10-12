@@ -14,16 +14,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 REPO = "dean-ai-ux/daily-brief"
+# Buckets follow Dean's interests; format (read/listen/watch) is a tag on each item.
 SECTION_TITLES = {
-    "top": "Top of mind",
-    "fed": "Fed watch",
-    "listen": "Listen",
-    "watch": "Watch",
-    "read": "Read",
+    "lead": "The lead",
+    "markets": "Markets & macro",
+    "ai": "AI & the new thing",
+    "startups": "Startups & YC",
+    "business": "Business stories",
+    "wildcard": "Wildcard",
 }
 # Generated print on each folder's tab strip (see PRESETS in template.html)
-SECTION_ART = {"top": "aurora", "fed": "verdant", "listen": "dusk", "watch": "ember", "read": "glacier", "radar": "none"}
-ITEM_FIELDS = {"id", "title", "url", "source", "meta", "gist", "summary", "why", "deeper", "related"}
+SECTION_ART = {"lead": "aurora", "markets": "verdant", "ai": "ember", "startups": "glacier", "business": "dusk", "wildcard": "tide"}
+FORMATS = {"read": "Read", "listen": "Listen", "watch": "Watch"}
+ITEM_FIELDS = {"id", "title", "url", "format", "source", "meta", "gist", "summary", "why", "deeper", "related"}
 SNAPSHOT_FIELDS = {"label", "value", "note", "url"}
 
 
@@ -61,6 +64,8 @@ def validate(d):
                 fail(f"duplicate item id {it['id']!r}")
             if not is_url(it["url"]):
                 fail(f"item {it['id']!r} url must be absolute")
+            if it.get("format", "read") not in FORMATS:
+                fail(f"item {it['id']!r} format must be one of {list(FORMATS)}")
             if len(it.get("gist", "")) > 120:
                 fail(f"item {it['id']!r} gist must be one line (≤ 120 chars)")
             deeper = it.get("deeper", [])
@@ -99,62 +104,77 @@ def gist_of(it):
 
 
 def render_row(it, lead=False):
+    fmt = it.get("format", "read")
     source = " · ".join(escape(x) for x in (it.get("source"), it.get("meta")) if x)
+    tag = f'<span class="fmt fmt-{fmt}">{FORMATS[fmt]}</span>'
     if lead:
-        why = f'<span class="row-why"><b>Why it matters</b> {escape(it["why"])}</span>' if it.get("why") else ""
-        body = f'<span class="row-sum">{escape(it["summary"])}</span>{why}'
+        body = f'<span class="row-sum">{escape(it["summary"])}</span>'
     else:
         body = f'<span class="row-gist">{escape(gist_of(it))}</span>'
     return f"""
-        <li class="row{' row-lead' if lead else ''}" data-id="{escape(it['id'], quote=True)}">
+        <li class="row{' row-lead' if lead else ''}" data-id="{escape(it['id'], quote=True)}" data-format="{fmt}">
           {CHECK}
           <button type="button" class="row-open" aria-haspopup="dialog">
             <span class="row-title">{escape(it['title'])}</span>
             {body}
-            {f'<span class="row-src">{source}</span>' if source else ''}
+            <span class="row-src">{tag}{source}</span>
           </button>
           {NOPE}
         </li>"""
 
 
-def render_card(key, title, body, count=None):
+def render_card(key, title, body, count):
     """A section as a folder: today's art on the tab strip, everything readable on solid paper."""
-    meta = f"{count} item{'s' if count != 1 else ''}" if count is not None else "This week"
     return f"""
     <section class="folder card-{key}" id="{key}" data-art="{SECTION_ART[key]}" aria-labelledby="{key}-h">
       <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
       <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count or 0}">{meta}</span></header>
+        <header class="f-head"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count}">{count} item{'s' if count != 1 else ''}</span></header>
         {body}
       </div>
     </section>"""
 
 
+def render_week(d):
+    rows = d.get("radar", [])
+    if not rows:
+        return ""
+    lis = "".join(
+        f'<li><span class="week-when">{escape(r["when"])}</span><span class="week-what">{escape(r["what"])}</span></li>'
+        for r in rows
+    )
+    return f'<section class="week" aria-labelledby="week-h"><h2 class="week-title" id="week-h">This week</h2><ul class="week-list">{lis}</ul></section>'
+
+
+def render_filters(d):
+    counts = {f: 0 for f in FORMATS}
+    for sec in d["sections"]:
+        for it in sec.get("items", []):
+            counts[it.get("format", "read")] += 1
+    total = sum(counts.values())
+    chips = [f'<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>{total}</span></button>']
+    chips += [
+        f'<button type="button" class="chip" data-filter="{f}" aria-pressed="false">{label} <span>{counts[f]}</span></button>'
+        for f, label in FORMATS.items() if counts[f]
+    ]
+    return f'<div class="filters" role="group" aria-label="Show">{"".join(chips)}</div>'
+
+
 def render_grid(d):
-    """Two tiers on desktop: Top of mind beside Fed watch + radar, then Listen | Watch | Read.
-    On smaller screens the tiers dissolve (display: contents) into one ordered grid."""
+    """The lead across the top, then one folder per interest. Week strip and format filters above."""
     by_key = {s["key"]: s for s in d["sections"] if s.get("items")}
     cards = {}
     for key, title in SECTION_TITLES.items():
         sec = by_key.get(key)
         if sec:
-            rows = "".join(render_row(it, lead=(key == "top" and i == 0)) for i, it in enumerate(sec["items"]))
+            rows = "".join(render_row(it, lead=(key == "lead")) for it in sec["items"])
             cards[key] = render_card(key, title, f'<ul class="rows">{rows}</ul>', len(sec["items"]))
-    radar = d.get("radar", [])
-    if radar:
-        lis = "".join(
-            f'<li><span class="radar-when">{escape(r["when"])}</span><span class="radar-what">{escape(r["what"])}</span></li>'
-            for r in radar
-        )
-        cards["radar"] = render_card("radar", "On the radar", f'<ul class="radar">{lis}</ul>')
-    aside = "".join(cards.get(k, "") for k in ("fed", "radar"))
-    secondary = [cards[k] for k in ("listen", "watch", "read") if k in cards]
-    primary_cls = "tier tier-primary" + ("" if aside else " solo")
+    rest = [cards[k] for k in SECTION_TITLES if k != "lead" and k in cards]
+    lead = cards.get("lead", "")
+    n_lead = len(by_key["lead"]["items"]) if "lead" in by_key else 0
     return (
-        f'<div class="board">'
-        f'<div class="{primary_cls}">{cards.get("top", "")}'
-        + (f'<div class="aside">{aside}</div>' if aside else "")
-        + f'</div><div class="tier tier-secondary" style="--n:{max(1, len(secondary))}">{"".join(secondary)}</div></div>'
+        render_week(d) + render_filters(d)
+        + f'<div class="board" style="--lead:{max(1, n_lead)}">{lead}<div class="interests">{"".join(rest)}</div></div>'
     )
 
 
@@ -181,7 +201,7 @@ def page_data(d):
             items.append({
                 "id": it["id"], "section": sec["key"], "sectionTitle": SECTION_TITLES[sec["key"]],
                 "title": it["title"], "url": it["url"], "source": it.get("source", ""),
-                "meta": it.get("meta", ""), "gist": gist_of(it), "summary": it["summary"], "why": it.get("why", ""),
+                "format": it.get("format", "read"), "meta": it.get("meta", ""), "gist": gist_of(it), "summary": it["summary"], "why": it.get("why", ""),
                 "deeper": it.get("deeper", []), "related": it.get("related", []),
             })
     # "</" would let item text close the <script> tag early

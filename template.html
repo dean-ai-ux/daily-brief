@@ -32,6 +32,8 @@
       --bar-bg: rgba(239, 238, 235, 0.86);
       --scrim: rgba(12, 12, 14, 0.32);
       --focus: #2f6bff;
+      --listen-bg: #fcefe1; --listen-ink: #8a4a10;
+      --watch-bg: #e8effb; --watch-ink: #24508f;
       --sans: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
       --ease: cubic-bezier(.2, .8, .2, 1);
@@ -55,6 +57,8 @@
         --lift: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.03)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
         --bar-bg: rgba(11, 11, 12, 0.86);
         --scrim: rgba(0, 0, 0, 0.6);
+        --listen-bg: rgba(255, 170, 90, 0.14); --listen-ink: #f3b77f;
+        --watch-bg: rgba(120, 160, 255, 0.15); --watch-ink: #a7c2ff;
         color-scheme: dark;
       }
     }
@@ -112,14 +116,37 @@
     .tile-note { font-size: 12px; color: var(--ink-3); line-height: 1.35;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* ---- Board: one ordered column on phones; tiers on desktop ---- */
-    .board { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start;
-      grid-template-areas: "top" "fed" "listen" "watch" "read" "radar"; }
-    .tier, .aside { display: contents; }
-    @media (max-width: 1099px) {
-      .card-top { grid-area: top; } .card-fed { grid-area: fed; } .card-radar { grid-area: radar; }
-      .card-listen { grid-area: listen; } .card-watch { grid-area: watch; } .card-read { grid-area: read; }
+    /* ---- This week strip ---- */
+    .week {
+      display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; padding: 12px 16px;
+      background: var(--paper); border: 1px solid var(--hair); border-radius: 14px;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .week::-webkit-scrollbar { display: none; }
+    .week-title { flex: none; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .week-list { list-style: none; display: flex; gap: 24px; }
+    .week-list li { flex: none; display: flex; gap: 8px; align-items: baseline; max-width: 260px; }
+    .week-when { flex: none; font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .week-what { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); }
+
+    /* ---- Format filter chips ---- */
+    .filters { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none; min-height: 38px; padding: 0 15px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px;
+      font-size: 14px; font-weight: 550; color: var(--ink-2); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hair-2);
+    }
+    .chip span { font-family: var(--mono); font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
+    .chip[aria-pressed="true"] { background: var(--solid); color: var(--solid-ink); box-shadow: none; }
+    .chip[aria-pressed="true"] span { color: inherit; opacity: .7; }
+    body[data-filter="read"] .row:not([data-format="read"]),
+    body[data-filter="listen"] .row:not([data-format="listen"]),
+    body[data-filter="watch"] .row:not([data-format="watch"]),
+    .folder.is-empty { display: none; }
+
+    /* ---- Board: the lead across the top, then one folder per interest ---- */
+    .board { display: flex; flex-direction: column; gap: 20px; }
+    .interests { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 
     /* ---- Folder: art tab strip + paper card ---- */
     .folder { position: relative; min-width: 0; filter: var(--lift); transition: opacity .6s var(--ease), transform .6s var(--ease); }
@@ -146,10 +173,17 @@
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .row-src { margin-top: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fmt {
+      display: inline-block; margin-right: 8px; padding: 1px 6px; border-radius: 5px; vertical-align: 1px;
+      font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--ink-2); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--hair);
+    }
+    .fmt-listen { color: var(--listen-ink); background: var(--listen-bg); box-shadow: none; }
+    .fmt-watch { color: var(--watch-ink); background: var(--watch-bg); box-shadow: none; }
     .row-open:hover .row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--hair-2); }
 
     .row-lead { padding-top: 16px; padding-bottom: 18px; }
-    .row-lead .row-title { font-size: 21px; font-weight: 650; line-height: 1.25; letter-spacing: -0.018em; }
+    .row-lead .row-title { font-size: 20px; font-weight: 650; line-height: 1.25; letter-spacing: -0.018em; }
     .row-sum { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
     .row-why { display: block; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); font-size: 14.5px; line-height: 1.45; color: var(--ink); }
     .row-why b { display: block; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
@@ -192,22 +226,35 @@
 
     /* ---- Tablet ---- */
     @media (min-width: 700px) {
-      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
-      .board { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "top top" "fed radar" "listen watch" "read read"; }
-      .board:not(:has(.card-fed)) { grid-template-areas: "top top" "radar radar" "listen watch" "read read"; }
+      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
+      .interests { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .lede { font-size: 18px; }
       .f-tab { height: 34px; }
     }
-    /* ---- Desktop: two tiers, cards keep their own height ---- */
+    @media (max-width: 899px) {
+      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    }
+    /* ---- Lead in columns once there's room ---- */
+    @media (min-width: 900px) {
+      .week { overflow: visible; }
+      .week-list { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 20px; }
+      .week-list li { max-width: none; flex-direction: column; gap: 2px; }
+      .card-lead .rows { display: grid; grid-template-columns: repeat(var(--lead), minmax(0, 1fr)); column-gap: 28px; }
+      .card-lead .row { border-top: 0; }
+      .card-lead .row + .row { border-left: 1px solid var(--hair); padding-left: 24px; margin-left: -4px; }
+      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    }
+    /* ---- Desktop ---- */
     @media (min-width: 1100px) {
-      .intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 32px; align-items: center; }
+      .intro { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: center; }
       .tile-value { font-size: 20px; }
-      .board { display: flex; flex-direction: column; gap: 22px; }
-      .tier { display: grid; gap: 22px; align-items: start; }
-      .tier-primary { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
-      .tier-primary.solo { grid-template-columns: minmax(0, 1fr); }
-      .aside { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-      .tier-secondary { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+      .interests { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .card-business { grid-column: span 2; }
+      .card-business .rows { columns: 2; column-gap: 28px; }
+      .card-business .row { break-inside: avoid; }
+      .card-business .row:nth-child(2) { border-top: 0; }
+      body[data-filter] .card-business { grid-column: auto; }
+      body[data-filter] .card-business .rows { columns: 1; }
     }
 
     /* ---- Click-in sheet ---- */
@@ -367,6 +414,7 @@
       ember:   { style: 'marble', colors: ['#07090c', '#16252c', '#3d5f68', '#1a1416', '#a3201a', '#ef4a2b', '#ff8a5c'], scale: 0.62, warp: 3.2, angle: -0.5, gloss: 0.55, veins: 0.6 },
       dusk:    { style: 'marble', colors: ['#120c18', '#3e2850', '#8f6c9c', '#2b1a24', '#b3502f', '#eab08a', '#fbe7d2'], scale: 0.75, warp: 3.6, angle: 0.8, gloss: 0.5, veins: 0.5 },
       glacier: { style: 'streak', colors: ['#f7f8fa', '#d9e2ea', '#9fb4c7', '#e8edf2', '#bccbd8', '#ffffff'], scale: 0.7, warp: 1.6, angle: 0.35, gloss: 0.25, veins: 0 },
+      tide:    { style: 'streak', colors: ['#0b1b22', '#14424f', '#2f7f86', '#e9e2cf', '#f6efe0', '#c9a46a', '#3b2a1c'], scale: 0.7, warp: 1.8, angle: 0.9, gloss: 0.3, veins: 0 },
       verdant: { style: 'marble', colors: ['#070b08', '#173024', '#4f7a5a', '#141812', '#a7843a', '#e9cf87', '#fbf3d6'], scale: 0.7, warp: 3.4, angle: 2.1, gloss: 0.5, veins: 0.5 }
     };
     function hexToRgb(hex) {
@@ -601,6 +649,22 @@
       folders.forEach(function (f) { f.classList.add('in'); });
     }
 
+    /* ---- Format filter: All / Read / Listen / Watch (remembered per device) ---- */
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+    function setFilter(f) {
+      if (!chips.some(function (c) { return c.dataset.filter === f; })) f = 'all';
+      if (f === 'all') delete document.body.dataset.filter; else document.body.dataset.filter = f;
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.filter === f)); });
+      folders.forEach(function (fo) {
+        var any = Array.prototype.some.call(fo.querySelectorAll('.row'), function (r) { return f === 'all' || r.dataset.format === f; });
+        fo.classList.toggle('is-empty', !any);
+        if (any) shape(fo);
+      });
+      store.set('brief:filter', f);
+    }
+    chips.forEach(function (c) { c.addEventListener('click', function () { setFilter(c.dataset.filter); }); });
+    setFilter(store.get('brief:filter') || 'all');
+
     /* ---- Marks ---- */
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function paintMarks(changedId) {
@@ -645,7 +709,7 @@
 
     /* ---- Click-in: a sheet pulled out of the folder ---- */
     var detail = $('detail');
-    var OPEN_LABEL = { listen: 'Listen ↗', watch: 'Watch ↗' };
+    var OPEN_LABEL = { read: 'Read ↗', listen: 'Listen ↗', watch: 'Watch ↗' };
 
     function fillList(listId, blockId, entries, render) {
       var ul = $(listId);
@@ -689,7 +753,7 @@
       });
       var open = $('d-open');
       open.href = it.url;
-      open.textContent = OPEN_LABEL[it.section] || 'Read ↗';
+      open.textContent = OPEN_LABEL[it.format] || 'Open ↗';
       paintDetailState();
       if (!detail.open) { if (detail.showModal) detail.showModal(); else detail.setAttribute('open', ''); }
       paintDetailArt(it.section);

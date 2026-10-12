@@ -28,7 +28,14 @@ Restrict to the last ~36 hours unless noted:
   "Wall Street Journal" + economy / markets / Fed / business / tech. Link wsj.com URLs when
   results include them; otherwise a reputable syndication of the WSJ story is fine.
 - **Fed people:** latest from **Kevin Warsh**, **Jerome Powell**, **Austan Goolsbee**
-  — speeches, interviews, testimony, op-eds, podcast appearances (last 72h).
+  — speeches, interviews, testimony, op-eds, podcast appearances (last 72h). Gather it, but
+  remember the one-Fed-item cap in step 3; extra Fed material goes into that item's `deeper`.
+- **AI & the new thing:** model and tool launches, what builders are excited about (Hacker
+  News front page is a good signal), notable AI-and-society stories.
+- **Business stories:** how companies actually work — strategy, competition, founders'
+  decisions, surprising second-order effects (NYT Business, Economist Business, WSJ).
+- **Wildcard:** one excellent piece *outside* Dean's lanes (science, history, design, maths,
+  culture) — high-signal, e.g. a top Hacker News thread or a standout longread.
 - **Macro:** what moved markets yesterday; data released yesterday or due today.
 - **Y Combinator:** important news only (batch/Demo Day, program or policy changes,
   big YC-company raises/exits, partner essays).
@@ -37,7 +44,7 @@ Restrict to the last ~36 hours unless noted:
   this week, and 1–2 *smaller* creators' videos demoing it (last 7 days). Link the video.
 - **Podcasts:** if any podcast feed failed, search for its latest episode. Also check for
   Warsh/Powell/Goolsbee/Karpathy guesting on other shows this week.
-- **On the radar:** this week's economic calendar (CPI, jobs, FOMC, minutes, GDP, major
+- **This week:** this week's economic calendar (CPI, jobs, FOMC, minutes, GDP, major
   earnings) and anything Dean should expect in the next 7 days.
 
 **Accuracy rules — non-negotiable**
@@ -49,24 +56,36 @@ Restrict to the last ~36 hours unless noted:
 - Don't state facts you didn't read. Summaries come from what the source says.
 
 ## 3. Choose
-Target ~5-minute skim, **12–18 items total**:
+Buckets follow Dean's interests; **format is a tag, not a section**. Target a ~5-minute skim,
+**13–16 items total**:
 | Section key | Title | Count | What belongs |
 |---|---|---|---|
-| `top` | Top of mind | 3–5 | The developments that matter most to Dean today (macro, Fed, YC, industry, AI). Each needs a `why`. |
-| `fed` | Fed watch | 0–3 | Anything Powell, Warsh or Goolsbee said/wrote, plus key Fed releases. Omit the section if nothing new. |
-| `listen` | Listen | 1–3 | Podcast episodes worth the commute. Odd Lots only when the guest clears the bar (Goolsbee-level). |
-| `watch` | Watch | 1–3 | Karpathy when there's something new; 1–2 "new cool thing" videos from smaller YouTubers. |
-| `read` | Read | 3–5 | Best articles from WSJ, The Economist, NYT (others fine). Mix of news and one longer read. |
+| `lead` | The lead | 2–3 | What Dean would be embarrassed not to know today, from **at least 2 different buckets**. Each needs a `why`. |
+| `markets` | Markets & macro | 2–3 | Rates, inflation, growth, energy, trade, markets. The Fed lives here. |
+| `ai` | AI & the new thing | 2–3 | Karpathy, model/tool launches, builders' demos, smaller YouTubers showing the new cool thing. |
+| `startups` | Startups & YC | 2 | Important YC news, notable YC-company raises/exits, founder or partner essays. |
+| `business` | Business stories | 2–3 | How companies work. Acquired and How I Built This usually land here. |
+| `wildcard` | Wildcard | 1 | One great pick outside the usual lanes. |
 
-Rank by: matches interests.md → feedback patterns → genuine importance → novelty.
-A story in `top` should not also appear in `read`.
+**Blend rules (hard limits)**
+- **At most one Fed-specific item per day** across all buckets (including the lead), unless
+  it's an FOMC decision day, minutes day, or a major speech/testimony from Warsh, Powell or
+  Goolsbee — then at most two. Fold other Fed remarks into that item's `deeper`/`related`.
+- No bucket (counting its lead items) above ~30% of the day's items.
+- At least **2 `listen`** and **2 `watch`** items across the whole brief. Odd Lots only when
+  the guest clears the bar (Goolsbee-level).
+- Every item has a `format`: `read`, `listen` or `watch`.
+- An item appears once. A lead story doesn't repeat in its bucket.
+
+Rank within each bucket by: interests.md → feedback patterns (including which buckets Dean
+✓s or ✗s) → genuine importance → novelty.
 
 ## 4. Write `data/$TODAY.json`
 The page is a dashboard: each item shows its full headline plus a one-line **gist**, and
 tapping it opens a detail panel with the summary, why it matters, **Go deeper** bullets and
-**Related** links. The first `top` item is the lead story and also shows its summary and `why`. The
-click-in is where Dean learns more, so fill `deeper` and `related` for every `top` and `fed`
-item and wherever else you have good material.
+**Related** links. Lead items show their summary on the card. Filter chips (All · Read · Listen ·
+Watch) use each item's `format`. The click-in is where Dean learns more, so fill `deeper` and
+`related` for every lead item and wherever else you have good material.
 ```json
 {
   "date": "2026-10-12",
@@ -74,43 +93,47 @@ item and wherever else you have good material.
   "lede": "One or two sentences (≤ 45 words): the shape of the morning in plain English.",
   "feedback_note": "Optional, one line: how yesterday's marks changed today's picks. Omit if none.",
   "snapshot": [
-    {"label": "10-yr Treasury", "value": "5.29%", "note": "Oct 8 · near 2002 high", "url": "https://…"}
+    {"label": "S&P 500", "value": "7,811", "note": "Fri close · +0.59%", "url": "https://…"},
+    {"label": "10-yr Treasury", "value": "5.29%", "note": "Oct 8 · near 2002 high", "url": "https://…"},
+    {"label": "Next up · Wed", "value": "CPI", "note": "3.6% y/y expected · 8:30am"}
   ],
   "sections": [
-    {"key": "top", "items": [
+    {"key": "lead", "items": [
       {
         "id": "nobel-hall-woodford",
         "title": "Headline in sentence case (≤ 80 chars; shown in full)",
         "url": "https://…",
+        "format": "read | listen | watch",
         "source": "NYT",
         "meta": "Optional: '6 min read' / '58 min · guest: Austan Goolsbee' / 'YouTube · 14 min'",
         "gist": "One line (≤ 100 chars): the takeaway, shown under the headline. Don't repeat the title.",
         "summary": "Two sentences max: what happened. Shown in the click-in.",
-        "why": "One sentence: why it matters to Dean. Required in top; optional elsewhere.",
+        "why": "One sentence: why it matters to Dean. Required in lead; optional elsewhere.",
         "deeper": ["2–4 short factual bullets of context, numbers, history or what to watch next."],
         "related": [{"title": "Source: headline", "url": "https://…"}]
       }
     ]},
-    {"key": "fed", "items": []},
-    {"key": "listen", "items": []},
-    {"key": "watch", "items": []},
-    {"key": "read", "items": []}
+    {"key": "markets", "items": []},
+    {"key": "ai", "items": []},
+    {"key": "startups", "items": []},
+    {"key": "business", "items": []},
+    {"key": "wildcard", "items": []}
   ],
   "radar": [
     {"when": "Wed Oct 14", "what": "September CPI, 8:30am ET"}
   ]
 }
 ```
-- `snapshot`: 3–4 market/macro tiles (e.g. 10-yr yield, oil, S&P 500, Fed funds, next big
-  data print). **Only numbers you read in a source today, with the as-of date in `note`.**
+- `snapshot`: exactly 3 tiles, a blend — one equity index (S&P 500 or Nasdaq), one rate or
+  commodity that matters today, and the next big event. `radar` renders as the "This week" strip. **Only numbers you read in a source today, with the as-of date in `note`.**
   If you can't source a number, leave that tile out. `url` optional.
 - `deeper`: at most 5 strings. `related`: at most 4 links, each `{"title", "url"}`, from
   URLs you actually saw. Both optional; omit rather than pad.
 - `id`: short kebab-case, unique within the day (3–60 chars, a–z 0–9 -).
 - `generated`: current ET time with offset (`TZ=America/New_York date -Iseconds`).
 - `gist` is required on every item in practice (the page falls back to the summary's first
-  sentence, which reads worse). Put the most important item first in `top`: it's the lead.
-- Allowed item fields only: id, title, url, source, meta, gist, summary, why, deeper, related.
+  sentence, which reads worse). `format` is required.
+- Allowed item fields only: id, title, url, format, source, meta, gist, summary, why, deeper, related.
 - Plain text everywhere (no markdown, no HTML). Tight, specific, no hype.
 
 ## 5. Render and check
@@ -122,7 +145,7 @@ routine run.
 
 ## 6. Learn
 If the last 30 days of feedback show a **clear new pattern** (e.g. 3+ ✗ on the same kind of
-item), add one dated line under **Learned from feedback** in `interests.md`, e.g.
+item, or a bucket Dean consistently skips or finishes), add one dated line under **Learned from feedback** in `interests.md`, e.g.
 `- 2026-10-14: Skips Odd Lots crypto episodes; keeps macro ones.` Don't duplicate an
 existing line; at most 2 new lines per day. Never edit other sections of interests.md.
 

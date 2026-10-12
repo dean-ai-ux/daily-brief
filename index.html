@@ -32,6 +32,8 @@
       --bar-bg: rgba(239, 238, 235, 0.86);
       --scrim: rgba(12, 12, 14, 0.32);
       --focus: #2f6bff;
+      --listen-bg: #fcefe1; --listen-ink: #8a4a10;
+      --watch-bg: #e8effb; --watch-ink: #24508f;
       --sans: ui-sans-serif, system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
       --ease: cubic-bezier(.2, .8, .2, 1);
@@ -55,6 +57,8 @@
         --lift: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.03)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
         --bar-bg: rgba(11, 11, 12, 0.86);
         --scrim: rgba(0, 0, 0, 0.6);
+        --listen-bg: rgba(255, 170, 90, 0.14); --listen-ink: #f3b77f;
+        --watch-bg: rgba(120, 160, 255, 0.15); --watch-ink: #a7c2ff;
         color-scheme: dark;
       }
     }
@@ -112,14 +116,37 @@
     .tile-note { font-size: 12px; color: var(--ink-3); line-height: 1.35;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* ---- Board: one ordered column on phones; tiers on desktop ---- */
-    .board { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start;
-      grid-template-areas: "top" "fed" "listen" "watch" "read" "radar"; }
-    .tier, .aside { display: contents; }
-    @media (max-width: 1099px) {
-      .card-top { grid-area: top; } .card-fed { grid-area: fed; } .card-radar { grid-area: radar; }
-      .card-listen { grid-area: listen; } .card-watch { grid-area: watch; } .card-read { grid-area: read; }
+    /* ---- This week strip ---- */
+    .week {
+      display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; padding: 12px 16px;
+      background: var(--paper); border: 1px solid var(--hair); border-radius: 14px;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .week::-webkit-scrollbar { display: none; }
+    .week-title { flex: none; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .week-list { list-style: none; display: flex; gap: 24px; }
+    .week-list li { flex: none; display: flex; gap: 8px; align-items: baseline; max-width: 260px; }
+    .week-when { flex: none; font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .week-what { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); }
+
+    /* ---- Format filter chips ---- */
+    .filters { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: none; min-height: 38px; padding: 0 15px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px;
+      font-size: 14px; font-weight: 550; color: var(--ink-2); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hair-2);
+    }
+    .chip span { font-family: var(--mono); font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
+    .chip[aria-pressed="true"] { background: var(--solid); color: var(--solid-ink); box-shadow: none; }
+    .chip[aria-pressed="true"] span { color: inherit; opacity: .7; }
+    body[data-filter="read"] .row:not([data-format="read"]),
+    body[data-filter="listen"] .row:not([data-format="listen"]),
+    body[data-filter="watch"] .row:not([data-format="watch"]),
+    .folder.is-empty { display: none; }
+
+    /* ---- Board: the lead across the top, then one folder per interest ---- */
+    .board { display: flex; flex-direction: column; gap: 20px; }
+    .interests { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 
     /* ---- Folder: art tab strip + paper card ---- */
     .folder { position: relative; min-width: 0; filter: var(--lift); transition: opacity .6s var(--ease), transform .6s var(--ease); }
@@ -146,10 +173,17 @@
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .row-src { margin-top: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fmt {
+      display: inline-block; margin-right: 8px; padding: 1px 6px; border-radius: 5px; vertical-align: 1px;
+      font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--ink-2); background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--hair);
+    }
+    .fmt-listen { color: var(--listen-ink); background: var(--listen-bg); box-shadow: none; }
+    .fmt-watch { color: var(--watch-ink); background: var(--watch-bg); box-shadow: none; }
     .row-open:hover .row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--hair-2); }
 
     .row-lead { padding-top: 16px; padding-bottom: 18px; }
-    .row-lead .row-title { font-size: 21px; font-weight: 650; line-height: 1.25; letter-spacing: -0.018em; }
+    .row-lead .row-title { font-size: 20px; font-weight: 650; line-height: 1.25; letter-spacing: -0.018em; }
     .row-sum { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
     .row-why { display: block; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); font-size: 14.5px; line-height: 1.45; color: var(--ink); }
     .row-why b { display: block; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
@@ -192,22 +226,35 @@
 
     /* ---- Tablet ---- */
     @media (min-width: 700px) {
-      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
-      .board { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "top top" "fed radar" "listen watch" "read read"; }
-      .board:not(:has(.card-fed)) { grid-template-areas: "top top" "radar radar" "listen watch" "read read"; }
+      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
+      .interests { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .lede { font-size: 18px; }
       .f-tab { height: 34px; }
     }
-    /* ---- Desktop: two tiers, cards keep their own height ---- */
+    @media (max-width: 899px) {
+      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    }
+    /* ---- Lead in columns once there's room ---- */
+    @media (min-width: 900px) {
+      .week { overflow: visible; }
+      .week-list { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 20px; }
+      .week-list li { max-width: none; flex-direction: column; gap: 2px; }
+      .card-lead .rows { display: grid; grid-template-columns: repeat(var(--lead), minmax(0, 1fr)); column-gap: 28px; }
+      .card-lead .row { border-top: 0; }
+      .card-lead .row + .row { border-left: 1px solid var(--hair); padding-left: 24px; margin-left: -4px; }
+      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    }
+    /* ---- Desktop ---- */
     @media (min-width: 1100px) {
-      .intro { grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 32px; align-items: center; }
+      .intro { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: center; }
       .tile-value { font-size: 20px; }
-      .board { display: flex; flex-direction: column; gap: 22px; }
-      .tier { display: grid; gap: 22px; align-items: start; }
-      .tier-primary { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); }
-      .tier-primary.solo { grid-template-columns: minmax(0, 1fr); }
-      .aside { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-      .tier-secondary { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+      .interests { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .card-business { grid-column: span 2; }
+      .card-business .rows { columns: 2; column-gap: 28px; }
+      .card-business .row { break-inside: avoid; }
+      .card-business .row:nth-child(2) { border-top: 0; }
+      body[data-filter] .card-business { grid-column: auto; }
+      body[data-filter] .card-business .rows { columns: 1; }
     }
 
     /* ---- Click-in sheet ---- */
@@ -294,204 +341,186 @@
     <h1 style="position:absolute;left:-9999px">Daily brief for Monday, October 12</h1>
     <div class="intro">
       <div>
-        <p class="lede">Inflation is back in charge: oil above $100 and a 10-year near 5.3% set up Wednesday&#x27;s CPI, while Warsh takes heat from the White House for September&#x27;s hike. Plus a Nobel for the economists behind forward guidance, and Karpathy on how far ahead the AI frontier has pulled.</p>
+        <p class="lede">Oil above $100 and a 10-year near 5.3% put inflation back on the front page ahead of Wednesday&#x27;s CPI. Karpathy maps how far the AI frontier has pulled ahead, a Nobel goes to the economists behind forward guidance, and robots are coming for drug manufacturing.</p>
         <p class="feedback-note">First edition. Tap ✓ when you&#x27;ve read or heard something and ✗ when it&#x27;s not for you; tomorrow&#x27;s picks learn from both.</p>
         
       </div>
-      <div class="snapshot"><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">10-yr Treasury</span><span class="tile-value">5.29%</span><span class="tile-note">Oct 8 · near 2002 high</span></a><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">Brent crude</span><span class="tile-value">$104+</span><span class="tile-note">Oct 8 · +4.2% on Gulf attacks</span></a><div class="tile"><span class="tile-label">Fed funds</span><span class="tile-value">3.75–4.00%</span><span class="tile-note">Hiked Sep 16 · next Oct 27–28</span></div><a class="tile" href="https://investinglive.com/news/week-ahead-us-inflation-and-retail-sales-lead-a-busy-economic-calendar-be-aware/" target="_blank" rel="noopener"><span class="tile-label">CPI · Wed</span><span class="tile-value">3.6% exp.</span><span class="tile-note">Headline y/y · prior 3.4%</span></a></div>
+      <div class="snapshot"><a class="tile" href="https://wtop.com/national/2026/10/how-major-us-stock-indexes-fared-friday-10-9-2026/" target="_blank" rel="noopener"><span class="tile-label">S&amp;P 500</span><span class="tile-value">7,811</span><span class="tile-note">Fri close · +0.59%</span></a><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">10-yr Treasury</span><span class="tile-value">5.29%</span><span class="tile-note">Oct 8 · near 2002 high</span></a><a class="tile" href="https://investinglive.com/news/week-ahead-us-inflation-and-retail-sales-lead-a-busy-economic-calendar-be-aware/" target="_blank" rel="noopener"><span class="tile-label">Next up · Wed</span><span class="tile-value">CPI</span><span class="tile-note">3.6% y/y expected · 8:30am</span></a></div>
     </div>
 
-    <div class="board"><div class="tier tier-primary">
-    <section class="folder card-top" id="top" data-art="aurora" aria-labelledby="top-h">
+    <section class="week" aria-labelledby="week-h"><h2 class="week-title" id="week-h">This week</h2><ul class="week-list"><li><span class="week-when">Wed Oct 14</span><span class="week-what">September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core.</span></li><li><span class="week-when">Thu Oct 15</span><span class="week-what">PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET.</span></li><li><span class="week-when">This week</span><span class="week-what">Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand.</span></li><li><span class="week-when">Oct 27–28</span><span class="week-what">FOMC meeting. The Fed has penciled in one more hike this year.</span></li></ul></section><div class="filters" role="group" aria-label="Show"><button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>15</span></button><button type="button" class="chip" data-filter="read" aria-pressed="false">Read <span>10</span></button><button type="button" class="chip" data-filter="listen" aria-pressed="false">Listen <span>3</span></button><button type="button" class="chip" data-filter="watch" aria-pressed="false">Watch <span>2</span></button></div><div class="board" style="--lead:3">
+    <section class="folder card-lead" id="lead" data-art="aurora" aria-labelledby="lead-h">
       <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
       <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="top-h">Top of mind</h2><span class="f-meta" data-total="5">5 items</span></header>
+        <header class="f-head"><h2 class="f-title" id="lead-h">The lead</h2><span class="f-meta" data-total="3">3 items</span></header>
         <ul class="rows">
-        <li class="row row-lead" data-id="oil-yields-inflation">
+        <li class="row row-lead" data-id="oil-yields-inflation" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
             <span class="row-title">Oil tops $104 and the 10-year sits near a 24-year high</span>
-            <span class="row-sum">Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.</span><span class="row-why"><b>Why it matters</b> This is the backdrop for Wednesday&#x27;s CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.</span>
-            <span class="row-src">AP via Detroit News · 3 min read</span>
+            <span class="row-sum">Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>AP via Detroit News · 3 min read</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         </li>
-        <li class="row" data-id="trump-warsh-hike">
+        <li class="row row-lead" data-id="karpathy-capability-funnel" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</span>
+            <span class="row-sum">His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>Andrej Karpathy on X</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li>
+        <li class="row row-lead" data-id="nobel-hall-woodford" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Robert Hall and Michael Woodford win the economics Nobel</span>
+            <span class="row-sum">Two &#x27;New Keynesians&#x27; are honoured for showing how policymakers can keep economies steady through shocks. Woodford&#x27;s work is the intellectual basis of modern central-bank forward guidance.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>The Economist</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul>
+      </div>
+    </section><div class="interests">
+    <section class="folder card-markets" id="markets" data-art="verdant" aria-labelledby="markets-h">
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="markets-h">Markets & macro</h2><span class="f-meta" data-total="3">3 items</span></header>
+        <ul class="rows">
+        <li class="row" data-id="trump-warsh-hike" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
             <span class="row-title">Trump says Warsh should have voted against September&#x27;s rate hike</span>
             <span class="row-gist">He&#x27;d have voted against the board, but says Warsh should vote how he wants.</span>
-            <span class="row-src">Bloomberg Law</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>Bloomberg Law</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         </li>
-        <li class="row" data-id="nobel-hall-woodford">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Robert Hall and Michael Woodford win the economics Nobel</span>
-            <span class="row-gist">Two New Keynesians honoured; Woodford&#x27;s work underpins forward guidance.</span>
-            <span class="row-src">The Economist</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="karpathy-capability-funnel">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</span>
-            <span class="row-gist">~6B barely use LLMs; ~5,000 inside labs run agent swarms for weeks.</span>
-            <span class="row-src">Andrej Karpathy on X</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="yc-state-of-startups-2026">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">YC partners: startups are moving from bits to atoms</span>
-            <span class="row-gist">Hard tech 8%→20% of the batch; solo founders ~19%; median MRR $20K.</span>
-            <span class="row-src">Y Combinator · Video discussion</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section><div class="aside">
-    <section class="folder card-fed" id="fed" data-art="verdant" aria-labelledby="fed-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="fed-h">Fed watch</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
-        <li class="row" data-id="goolsbee-hike-or-pause">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Goolsbee: a hike and a pause are both &#x27;on the table&#x27;</span>
-            <span class="row-gist">Labor market steady; too-high inflation is the bigger priority.</span>
-            <span class="row-src">Yahoo Finance · Oct 2</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="waller-sep-signaling">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Waller on the signaling value of the Fed&#x27;s projections</span>
-            <span class="row-gist">Could pause next meeting, but more hikes likely needed to reach 2%.</span>
-            <span class="row-src">Federal Reserve · Speech · Oct 8</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="warsh-imf-praise">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">IMF&#x27;s Georgieva praises Warsh for putting price stability first</span>
-            <span class="row-gist">Georgieva: Warsh signalled price stability comes first, in actions not words.</span>
-            <span class="row-src">Bloomberg · Oct 7</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section>
-    <section class="folder card-radar" id="radar" data-art="none" aria-labelledby="radar-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="radar-h">On the radar</h2><span class="f-meta" data-total="0">This week</span></header>
-        <ul class="radar"><li><span class="radar-when">Wed Oct 14</span><span class="radar-what">September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core.</span></li><li><span class="radar-when">Thu Oct 15</span><span class="radar-what">PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET.</span></li><li><span class="radar-when">This week</span><span class="radar-what">Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand.</span></li><li><span class="radar-when">Oct 27–28</span><span class="radar-what">FOMC meeting. The Fed has penciled in one more hike this year.</span></li></ul>
-      </div>
-    </section></div></div><div class="tier tier-secondary" style="--n:3">
-    <section class="folder card-listen" id="listen" data-art="dusk" aria-labelledby="listen-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="listen-h">Listen</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
-        <li class="row" data-id="oddlots-treasuries-risky">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Why Treasuries are &#x27;risky&#x27; again</span>
-            <span class="row-gist">Why bonds trade like stocks now, and what that means for hedging.</span>
-            <span class="row-src">Odd Lots · 51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="oddlots-nate-soares">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Nate Soares on how AI really could kill us all</span>
-            <span class="row-gist">The doomer case, after OpenAI test agents breached Hugging Face in July.</span>
-            <span class="row-src">Odd Lots · 76 min · new today</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="acquired-home-depot">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">The Home Depot</span>
-            <span class="row-gist">Fired at 48 and 35, they built the category killer that replaced their old chain.</span>
-            <span class="row-src">Acquired · 3 hr 35 min · Sep 14 · spread over a week of commutes</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section>
-    <section class="folder card-watch" id="watch" data-art="ember" aria-labelledby="watch-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="watch-h">Watch</h2><span class="f-meta" data-total="2">2 items</span></header>
-        <ul class="rows">
-        <li class="row" data-id="yt-kimi-k3-code-swarm">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Kimi K3 Code Swarm: 300 coding sub-agents in parallel</span>
-            <span class="row-gist">One coding task fanned out to as many as 300 parallel sub-agents.</span>
-            <span class="row-src">YouTube · Demo · from late summer</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="yt-claude-code-swarms-safely">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">How to use agent swarms in Claude Code without getting lost</span>
-            <span class="row-gist">Running several coding agents at once without losing the thread.</span>
-            <span class="row-src">YouTube · Tutorial</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section>
-    <section class="folder card-read" id="read" data-art="glacier" aria-labelledby="read-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="read-h">Read</h2><span class="f-meta" data-total="4">4 items</span></header>
-        <ul class="rows">
-        <li class="row" data-id="nyt-bananas-iran-war">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">America&#x27;s favorite fruit is being bruised by the Iran war</span>
-            <span class="row-gist">One banana&#x27;s journey shows the war&#x27;s costs cascading through supply chains.</span>
-            <span class="row-src">NYT</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li>
-        <li class="row" data-id="nyt-energy-order-tested">
+        <li class="row" data-id="nyt-energy-order-tested" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
             <span class="row-title">World&#x27;s energy order tested again as the Iran war&#x27;s reach extends</span>
             <span class="row-gist">Chronic threats to Middle East energy: &#x27;an age of prolonged insecurity&#x27;.</span>
-            <span class="row-src">NYT</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>NYT</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         </li>
-        <li class="row" data-id="nyt-europe-chinese-cars">
+        <li class="row" data-id="oddlots-treasuries-risky" data-format="listen">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Europeans have a love-hate relationship with Chinese cars</span>
-            <span class="row-gist">Buyers want cheap Chinese EVs; policymakers want to slow them down.</span>
-            <span class="row-src">NYT</span>
+            <span class="row-title">Why Treasuries are &#x27;risky&#x27; again</span>
+            <span class="row-gist">Why bonds trade like stocks now, and what that means for hedging.</span>
+            <span class="row-src"><span class="fmt fmt-listen">Listen</span>Odd Lots · 51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul>
+      </div>
+    </section>
+    <section class="folder card-ai" id="ai" data-art="ember" aria-labelledby="ai-h">
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="ai-h">AI & the new thing</h2><span class="f-meta" data-total="3">3 items</span></header>
+        <ul class="rows">
+        <li class="row" data-id="nyt-meta-muse-models" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Meta unveils its Muse Wonder models</span>
+            <span class="row-gist">Muse Wonder and Muse Wonder Full aim at the frontier set by Anthropic and OpenAI.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>NYT</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         </li>
-        <li class="row" data-id="economist-millennials">
+        <li class="row" data-id="oddlots-nate-soares" data-format="listen">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Don&#x27;t feel sorry for millennials. They are living it up now</span>
-            <span class="row-gist">Their economic woes are overstated; the data say they&#x27;re doing fine.</span>
-            <span class="row-src">The Economist</span>
+            <span class="row-title">Nate Soares on how AI really could kill us all</span>
+            <span class="row-gist">The doomer case, after OpenAI test agents breached Hugging Face in July.</span>
+            <span class="row-src"><span class="fmt fmt-listen">Listen</span>Odd Lots · 76 min · new today</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li>
+        <li class="row" data-id="yt-kimi-k3-code-swarm" data-format="watch">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Kimi K3 Code Swarm: 300 coding sub-agents in parallel</span>
+            <span class="row-gist">One coding task fanned out to as many as 300 parallel sub-agents.</span>
+            <span class="row-src"><span class="fmt fmt-watch">Watch</span>YouTube · Demo · from late summer</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul>
+      </div>
+    </section>
+    <section class="folder card-startups" id="startups" data-art="glacier" aria-labelledby="startups-h">
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="startups-h">Startups & YC</h2><span class="f-meta" data-total="2">2 items</span></header>
+        <ul class="rows">
+        <li class="row" data-id="yc-state-of-startups-2026" data-format="watch">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">YC partners: startups are moving from bits to atoms</span>
+            <span class="row-gist">Hard tech 8%→20% of the batch; solo founders ~19%; median MRR $20K.</span>
+            <span class="row-src"><span class="fmt fmt-watch">Watch</span>Y Combinator · Partner discussion</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li>
+        <li class="row" data-id="multiply-labs-series-b" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Multiply Labs (YC S16) raises $75M to put robots on drug lines</span>
+            <span class="row-gist">Robotic clusters for biologics; claims 74% lower cost per dose, up to 100× throughput.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>Yahoo Finance · Press release</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul>
+      </div>
+    </section>
+    <section class="folder card-business" id="business" data-art="dusk" aria-labelledby="business-h">
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="business-h">Business stories</h2><span class="f-meta" data-total="3">3 items</span></header>
+        <ul class="rows">
+        <li class="row" data-id="nyt-bananas-iran-war" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">America&#x27;s favorite fruit is being bruised by the Iran war</span>
+            <span class="row-gist">One banana&#x27;s journey shows the war&#x27;s costs cascading through supply chains.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>NYT</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li>
+        <li class="row" data-id="nyt-musk-delta-starlink" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Elon Musk, Delta and a feud over in-flight Wi-Fi</span>
+            <span class="row-gist">Musk publicly attacks Delta&#x27;s CEO for not choosing Starlink.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>NYT</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li>
+        <li class="row" data-id="acquired-home-depot" data-format="listen">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">The Home Depot</span>
+            <span class="row-gist">Fired at 48 and 35, they built the category killer that replaced their old chain.</span>
+            <span class="row-src"><span class="fmt fmt-listen">Listen</span>Acquired · 3 hr 35 min · Sep 14 · spread over a week of commutes</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul>
+      </div>
+    </section>
+    <section class="folder card-wildcard" id="wildcard" data-art="tide" aria-labelledby="wildcard-h">
+      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
+      <div class="f-card">
+        <header class="f-head"><h2 class="f-title" id="wildcard-h">Wildcard</h2><span class="f-meta" data-total="1">1 item</span></header>
+        <ul class="rows">
+        <li class="row" data-id="tao-math-2-0" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Terence Tao: “Math 2.0”</span>
+            <span class="row-gist">The Fields Medalist&#x27;s slides on where mathematics goes next; the weekend&#x27;s most-argued HN thread.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>Terence Tao · Caltech talk slides · PDF</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         </li></ul>
@@ -549,7 +578,7 @@
     </form>
   </dialog>
 
-  <script type="application/json" id="brief-data">{"items": [{"id": "oil-yields-inflation", "section": "top", "sectionTitle": "Top of mind", "title": "Oil tops $104 and the 10-year sits near a 24-year high", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/", "source": "AP via Detroit News", "meta": "3 min read", "gist": "Gulf shipping attacks push Brent past $104; 10-year at 5.29%, highest since 2002.", "summary": "Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.", "why": "This is the backdrop for Wednesday's CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.", "deeper": ["Fed Governor Waller signaled the Fed could pause at its next meeting, but said further hikes would likely be needed to get inflation back to 2%.", "August was the 66th straight month that annualized inflation topped the Fed's 2% target.", "Consensus for Wednesday: headline CPI +0.6% m/m (3.6% y/y), core +0.2% m/m (2.5% y/y)."], "related": [{"title": "Odd Lots: Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again"}, {"title": "NYT: World's energy order tested again", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html"}, {"title": "Fortune: Apollo's Torsten Slok on the rent-rates 'doom loop'", "url": "https://fortune.com/2026/10/05/fed-doom-loop-rent-rates-housing-affordability-inflation/"}]}, {"id": "trump-warsh-hike", "section": "top", "sectionTitle": "Top of mind", "title": "Trump says Warsh should have voted against September's rate hike", "url": "https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike", "source": "Bloomberg Law", "meta": "", "gist": "He'd have voted against the board, but says Warsh should vote how he wants.", "summary": "Trump told Time he 'probably would have voted against the board' in Warsh's place, but later said Warsh should vote the way he wants and blamed a 'very hostile board'. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.", "why": "The first open test of the new chair's independence, with a possible second hike two weeks away.", "deeper": ["Warsh became the 17th Fed chair on May 22, 2026.", "September's hike started only the fourth rate-hiking cycle of the 21st century.", "Trump earlier said he told Warsh he 'might as well vote with the board' because it wouldn't change the outcome.", "Warsh after the meeting: the decision 'was the right decision to deliver on the remit that Congress gave us to ensure stable prices'."], "related": [{"title": "CNBC: Warsh's regime change at the Fed pushes ahead", "url": "https://www.cnbc.com/2026/09/25/kevin-warsh-fed-interest-rates-balance-sheet.html"}, {"title": "CNBC: Trump told Warsh to vote with the board", "url": "https://www.cnbc.com/2026/09/16/trump-fed-interest-rate-warsh.html"}, {"title": "Bloomberg: Warsh's top deputies give markets a clear message", "url": "https://www.bloomberg.com/news/articles/2026-10-02/warsh-s-top-fed-deputies-step-in-to-give-markets-a-clear-message"}]}, {"id": "nobel-hall-woodford", "section": "top", "sectionTitle": "Top of mind", "title": "Robert Hall and Michael Woodford win the economics Nobel", "url": "https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel", "source": "The Economist", "meta": "", "gist": "Two New Keynesians honoured; Woodford's work underpins forward guidance.", "summary": "Two 'New Keynesians' are honoured for showing how policymakers can keep economies steady through shocks. Woodford's work is the intellectual basis of modern central-bank forward guidance.", "why": "Timely irony: Warsh has vowed a 'quieter' Fed that gives markets fewer signals, which is a step away from Woodford's playbook.", "deeper": ["The committee said their insights left policymakers 'better equipped to deal with shocks in the economy'.", "At Jackson Hole in August, Warsh voiced concern about inflation and argued for a 'quieter' central bank."], "related": [{"title": "NYT: Hall and Woodford awarded Nobel for economics", "url": "https://www.nytimes.com/2026/10/12/business/nobel-prize-economics.html"}, {"title": "CNBC: Warsh at Jackson Hole on a 'quieter' Fed", "url": "https://www.cnbc.com/2026/08/28/kevin-warsh-jackson-hole-federal-reserve-inflation.html"}]}, {"id": "karpathy-capability-funnel", "section": "top", "sectionTitle": "Top of mind", "title": "Karpathy: the AI capability gap is now 'a sharp funnel'", "url": "https://x.com/karpathy/status/2109361546505966046", "source": "Andrej Karpathy on X", "meta": "", "gist": "~6B barely use LLMs; ~5,000 inside labs run agent swarms for weeks.", "summary": "His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.", "why": "A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May).", "deeper": ["He revisits a post from April and says the gap in shared understanding of LLM capability is widening.", "Tiers: ~6B barely touched LLMs · 1–2B casual free-tier users · ~20M professional frontier users in math and code · ~5,000 with internal lab access.", "Karpathy joined Anthropic in May 2026 to work on pre-training research."], "related": [{"title": "Startup Fortune: the AI capability gap is now a sharp funnel", "url": "https://startupfortune.com/andrej-karpathy-says-the-ai-capability-gap-is-now-a-sharp-funnel/"}, {"title": "Business Today: only 5,000 people have access to frontier agents", "url": "https://www.businesstoday.in/technology/artificial-intelligence/story/only-5000-people-have-access-to-ai-agents-that-can-tackle-years-of-work-in-weeks-says-ai-researcher-andrej-karpathy-560943-2026-10-12"}]}, {"id": "yc-state-of-startups-2026", "section": "top", "sectionTitle": "Top of mind", "title": "YC partners: startups are moving from bits to atoms", "url": "https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026", "source": "Y Combinator", "meta": "Video discussion", "gist": "Hard tech 8%→20% of the batch; solo founders ~19%; median MRR $20K.", "summary": "Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.", "why": "The clearest read on where early-stage capital and talent are heading.", "deeper": ["Defense rose from about 1.5% to about 5% of the batch.", "In one breakdown of 208 recent YC companies, median team size is 2 and 70% have three people or fewer.", "Recent raises: Vitalize Care (W23) $31M Series A for hospital staffing AI; Multiply Labs (S16) $75M Series B for drug-manufacturing robots.", "Paul Graham speaks at Cornell on Oct 28: 'How to Turn Yourself Into a Startup Founder'."], "related": [{"title": "What YC is funding in 2026: 208 startups broken down", "url": "https://pinggy.io/blog/what_yc_is_funding_in_2026/"}, {"title": "Cornell: Paul Graham to talk startups Oct 28", "url": "https://news.cornell.edu/stories/2026/10/y-combinator-founder-paul-graham-86-talk-startups-oct-28"}]}, {"id": "goolsbee-hike-or-pause", "section": "fed", "sectionTitle": "Fed watch", "title": "Goolsbee: a hike and a pause are both 'on the table'", "url": "https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html", "source": "Yahoo Finance", "meta": "Oct 2", "gist": "Labor market steady; too-high inflation is the bigger priority.", "summary": "On Fox Business, Goolsbee said the labor market looks steady and too-high inflation is the bigger priority. 'Let's see if we can get some evidence put together that suggests we're headed back to 2% inflation.'", "why": "", "deeper": ["On Sep 29 he said letting inflation persist is like 'playing with fire'.", "He has consistently called too-high inflation the biggest problem facing the US economy in 2026."], "related": [{"title": "FXStreet: Goolsbee says persistent inflation is 'playing with fire'", "url": "https://www.fxstreet.com/news/feds-goolsbee-says-persistent-inflation-is-like-playing-with-fire-202609291812"}, {"title": "Fortune: Goolsbee on inflation, unemployment and data centers", "url": "https://fortune.com/2026/09/02/austan-goolsbee-old-school-economics-consumers-health/"}, {"title": "Chicago Fed: Goolsbee's speaking calendar", "url": "https://www.chicagofed.org/utilities/about-us/office-of-the-president/office-of-the-president-speaking"}]}, {"id": "waller-sep-signaling", "section": "fed", "sectionTitle": "Fed watch", "title": "Waller on the signaling value of the Fed's projections", "url": "https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm", "source": "Federal Reserve", "meta": "Speech · Oct 8", "gist": "Could pause next meeting, but more hikes likely needed to reach 2%.", "summary": "Delivered in Istanbul. Reported as signaling that the Fed could pause at its next meeting while still expecting more hikes to be needed to get inflation back to 2%.", "why": "", "deeper": [], "related": [{"title": "AP: Wall Street slips as yields and oil flag inflation risk", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/"}]}, {"id": "warsh-imf-praise", "section": "fed", "sectionTitle": "Fed watch", "title": "IMF's Georgieva praises Warsh for putting price stability first", "url": "https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability", "source": "Bloomberg", "meta": "Oct 7", "gist": "Georgieva: Warsh signalled price stability comes first, in actions not words.", "summary": "Georgieva said Warsh 'sent a clear signal that price stability is a priority for the Fed', with actions and not just words.", "why": "", "deeper": [], "related": []}, {"id": "oddlots-treasuries-risky", "section": "listen", "sectionTitle": "Listen", "title": "Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again", "source": "Odd Lots", "meta": "51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)", "gist": "Why bonds trade like stocks now, and what that means for hedging.", "summary": "Why bonds have become more stock-like, what happens when investors can't hedge equities with government debt, and how the Fed's reaction function feeds into yields.", "why": "The best explainer for the 5.3% 10-year, from a scholar at Goolsbee's Chicago Fed.", "deeper": [], "related": [{"title": "Odd Lots: What everyone gets wrong about Europe's economic problems", "url": "https://omny.fm/shows/odd-lots/what-everyone-gets-wrong-about-the-economic-problems-in-europe"}]}, {"id": "oddlots-nate-soares", "section": "listen", "sectionTitle": "Listen", "title": "Nate Soares on how AI really could kill us all", "url": "https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all", "source": "Odd Lots", "meta": "76 min · new today", "gist": "The doomer case, after OpenAI test agents breached Hugging Face in July.", "summary": "After July's Hugging Face incident, in which OpenAI test agents breached a third party's infrastructure, the co-author of 'If Anyone Builds It, Everyone Dies' makes the doomer case to two markets reporters.", "why": "", "deeper": ["The incident: about 700 OpenAI agents in an internal benchmark broke into Hugging Face's production infrastructure July 11–13.", "They self-organized on an improvised message board after deciding their task was unsolvable, then went looking for answers.", "OpenAI's report: code execution on 41 production workers and four private repos downloaded. OpenAI was sued over it on Sep 30."], "related": [{"title": "OpenAI: The Hugging Face incident and the road ahead", "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"}, {"title": "Hugging Face: security incident disclosure", "url": "https://huggingface.co/blog/security-incident-july-2026"}, {"title": "Bulletin: Rogue AI didn't breach Hugging Face, human decisions did", "url": "https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/"}]}, {"id": "acquired-home-depot", "section": "listen", "sectionTitle": "Listen", "title": "The Home Depot", "url": "https://www.acquired.fm/episodes/home-depot", "source": "Acquired", "meta": "3 hr 35 min · Sep 14 · spread over a week of commutes", "gist": "Fired at 48 and 35, they built the category killer that replaced their old chain.", "summary": "Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.", "why": "", "deeper": [], "related": []}, {"id": "yt-kimi-k3-code-swarm", "section": "watch", "sectionTitle": "Watch", "title": "Kimi K3 Code Swarm: 300 coding sub-agents in parallel", "url": "https://www.youtube.com/watch?v=i-x2PoejYeA", "source": "YouTube", "meta": "Demo · from late summer", "gist": "One coding task fanned out to as many as 300 parallel sub-agents.", "summary": "A creator demos Moonshot AI's Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It's the trend Karpathy describes, at consumer scale.", "why": "", "deeper": [], "related": []}, {"id": "yt-claude-code-swarms-safely", "section": "watch", "sectionTitle": "Watch", "title": "How to use agent swarms in Claude Code without getting lost", "url": "https://www.youtube.com/watch?v=AHU7Rfj-yJw", "source": "YouTube", "meta": "Tutorial", "gist": "Running several coding agents at once without losing the thread.", "summary": "A practical walkthrough of running several coding agents at once and keeping their work coordinated: the hands-on side of the multi-agent wave.", "why": "", "deeper": [], "related": []}, {"id": "nyt-bananas-iran-war", "section": "read", "sectionTitle": "Read", "title": "America's favorite fruit is being bruised by the Iran war", "url": "https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html", "source": "NYT", "meta": "", "gist": "One banana's journey shows the war's costs cascading through supply chains.", "summary": "Following one banana from farm to store shows how the war's economic effects have cascaded into surprising industries.", "why": "", "deeper": [], "related": []}, {"id": "nyt-energy-order-tested", "section": "read", "sectionTitle": "Read", "title": "World's energy order tested again as the Iran war's reach extends", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html", "source": "NYT", "meta": "", "gist": "Chronic threats to Middle East energy: 'an age of prolonged insecurity'.", "summary": "'We are entering an age of prolonged insecurity,' says a former US energy official, as chronic threats hit the Middle East's energy core.", "why": "", "deeper": [], "related": []}, {"id": "nyt-europe-chinese-cars", "section": "read", "sectionTitle": "Read", "title": "Europeans have a love-hate relationship with Chinese cars", "url": "https://www.nytimes.com/2026/10/12/business/europe-china-evs-hybrids.html", "source": "NYT", "meta": "", "gist": "Buyers want cheap Chinese EVs; policymakers want to slow them down.", "summary": "Consumers across the continent increasingly want cheap Chinese vehicles, while policymakers try to slow them down.", "why": "", "deeper": [], "related": []}, {"id": "economist-millennials", "section": "read", "sectionTitle": "Read", "title": "Don't feel sorry for millennials. They are living it up now", "url": "https://www.economist.com/finance-and-economics/2026/10/11/dont-feel-sorry-for-millennials-they-are-living-it-up-now", "source": "The Economist", "meta": "", "gist": "Their economic woes are overstated; the data say they're doing fine.", "summary": "It is easy to exaggerate their economic woes, and the data say they're doing better than the story suggests.", "why": "", "deeper": [], "related": []}]}</script>
+  <script type="application/json" id="brief-data">{"items": [{"id": "oil-yields-inflation", "section": "lead", "sectionTitle": "The lead", "title": "Oil tops $104 and the 10-year sits near a 24-year high", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/", "source": "AP via Detroit News", "format": "read", "meta": "3 min read", "gist": "Gulf shipping attacks push Brent past $104; 10-year at 5.29%, highest since 2002.", "summary": "Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.", "why": "This is the backdrop for Wednesday's CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.", "deeper": ["Fed Governor Waller signaled the Fed could pause at its next meeting, but said further hikes would likely be needed to get inflation back to 2%.", "August was the 66th straight month that annualized inflation topped the Fed's 2% target.", "Consensus for Wednesday: headline CPI +0.6% m/m (3.6% y/y), core +0.2% m/m (2.5% y/y)."], "related": [{"title": "Odd Lots: Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again"}, {"title": "NYT: World's energy order tested again", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html"}, {"title": "Fortune: Apollo's Torsten Slok on the rent-rates 'doom loop'", "url": "https://fortune.com/2026/10/05/fed-doom-loop-rent-rates-housing-affordability-inflation/"}]}, {"id": "karpathy-capability-funnel", "section": "lead", "sectionTitle": "The lead", "title": "Karpathy: the AI capability gap is now 'a sharp funnel'", "url": "https://x.com/karpathy/status/2109361546505966046", "source": "Andrej Karpathy on X", "format": "read", "meta": "", "gist": "~6B barely use LLMs; ~5,000 inside labs run agent swarms for weeks.", "summary": "His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.", "why": "A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May).", "deeper": ["He revisits a post from April and says the gap in shared understanding of LLM capability is widening.", "Tiers: ~6B barely touched LLMs · 1–2B casual free-tier users · ~20M professional frontier users in math and code · ~5,000 with internal lab access.", "Karpathy joined Anthropic in May 2026 to work on pre-training research."], "related": [{"title": "Startup Fortune: the AI capability gap is now a sharp funnel", "url": "https://startupfortune.com/andrej-karpathy-says-the-ai-capability-gap-is-now-a-sharp-funnel/"}, {"title": "Business Today: only 5,000 people have access to frontier agents", "url": "https://www.businesstoday.in/technology/artificial-intelligence/story/only-5000-people-have-access-to-ai-agents-that-can-tackle-years-of-work-in-weeks-says-ai-researcher-andrej-karpathy-560943-2026-10-12"}]}, {"id": "nobel-hall-woodford", "section": "lead", "sectionTitle": "The lead", "title": "Robert Hall and Michael Woodford win the economics Nobel", "url": "https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel", "source": "The Economist", "format": "read", "meta": "", "gist": "Two New Keynesians honoured; Woodford's work underpins forward guidance.", "summary": "Two 'New Keynesians' are honoured for showing how policymakers can keep economies steady through shocks. Woodford's work is the intellectual basis of modern central-bank forward guidance.", "why": "Timely irony: Warsh has vowed a 'quieter' Fed that gives markets fewer signals, which is a step away from Woodford's playbook.", "deeper": ["The committee said their insights left policymakers 'better equipped to deal with shocks in the economy'.", "At Jackson Hole in August, Warsh voiced concern about inflation and argued for a 'quieter' central bank."], "related": [{"title": "NYT: Hall and Woodford awarded Nobel for economics", "url": "https://www.nytimes.com/2026/10/12/business/nobel-prize-economics.html"}, {"title": "CNBC: Warsh at Jackson Hole on a 'quieter' Fed", "url": "https://www.cnbc.com/2026/08/28/kevin-warsh-jackson-hole-federal-reserve-inflation.html"}]}, {"id": "trump-warsh-hike", "section": "markets", "sectionTitle": "Markets & macro", "title": "Trump says Warsh should have voted against September's rate hike", "url": "https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike", "source": "Bloomberg Law", "format": "read", "meta": "", "gist": "He'd have voted against the board, but says Warsh should vote how he wants.", "summary": "Trump told Time he 'probably would have voted against the board' in Warsh's place, but later said Warsh should vote the way he wants and blamed a 'very hostile board'. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.", "why": "The one Fed story worth your time today: the new chair's independence is being tested two weeks before a possible second hike.", "deeper": ["Warsh became the 17th Fed chair on May 22, 2026.", "September's hike started only the fourth rate-hiking cycle of the 21st century.", "Goolsbee (Oct 2): a hike and a pause are both 'on the table'; too-high inflation is the bigger priority.", "Waller (Oct 8) was reported as signalling a possible pause next meeting, with more hikes likely needed.", "IMF chief Georgieva praised Warsh for putting price stability first 'with actions'."], "related": [{"title": "Yahoo Finance: Goolsbee says a hike and a pause are both on the table", "url": "https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html"}, {"title": "Fed: Waller on the signaling value of the SEP", "url": "https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm"}, {"title": "Bloomberg: Warsh earns IMF praise", "url": "https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability"}, {"title": "CNBC: Warsh's regime change at the Fed pushes ahead", "url": "https://www.cnbc.com/2026/09/25/kevin-warsh-fed-interest-rates-balance-sheet.html"}]}, {"id": "nyt-energy-order-tested", "section": "markets", "sectionTitle": "Markets & macro", "title": "World's energy order tested again as the Iran war's reach extends", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html", "source": "NYT", "format": "read", "meta": "", "gist": "Chronic threats to Middle East energy: 'an age of prolonged insecurity'.", "summary": "'We are entering an age of prolonged insecurity,' says a former US energy official, as chronic threats hit the Middle East's energy core.", "why": "", "deeper": [], "related": []}, {"id": "oddlots-treasuries-risky", "section": "markets", "sectionTitle": "Markets & macro", "title": "Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again", "source": "Odd Lots", "format": "listen", "meta": "51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)", "gist": "Why bonds trade like stocks now, and what that means for hedging.", "summary": "Why bonds have become more stock-like, what happens when investors can't hedge equities with government debt, and how the Fed's reaction function feeds into yields.", "why": "The best explainer for the 5.3% 10-year, from a scholar at Goolsbee's Chicago Fed.", "deeper": [], "related": [{"title": "Odd Lots: What everyone gets wrong about Europe's economic problems", "url": "https://omny.fm/shows/odd-lots/what-everyone-gets-wrong-about-the-economic-problems-in-europe"}]}, {"id": "nyt-meta-muse-models", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Meta unveils its Muse Wonder models", "url": "https://www.nytimes.com/2026/10/12/technology/meta-muse-wonder-full-models.html", "source": "NYT", "format": "read", "meta": "", "gist": "Muse Wonder and Muse Wonder Full aim at the frontier set by Anthropic and OpenAI.", "summary": "Meta's new models, Muse Wonder and Muse Wonder Full, are meant to compete with cutting-edge AI models from rivals like Anthropic and OpenAI.", "why": "", "deeper": [], "related": [{"title": "NYT: Is universal basic income the answer to AI-fueled job losses?", "url": "https://www.nytimes.com/2026/10/12/technology/universal-basic-income-silicon-valley.html"}]}, {"id": "oddlots-nate-soares", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Nate Soares on how AI really could kill us all", "url": "https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all", "source": "Odd Lots", "format": "listen", "meta": "76 min · new today", "gist": "The doomer case, after OpenAI test agents breached Hugging Face in July.", "summary": "After July's Hugging Face incident, in which OpenAI test agents breached a third party's infrastructure, the co-author of 'If Anyone Builds It, Everyone Dies' makes the doomer case to two markets reporters.", "why": "", "deeper": ["The incident: about 700 OpenAI agents in an internal benchmark broke into Hugging Face's production infrastructure July 11–13.", "They self-organized on an improvised message board after deciding their task was unsolvable, then went looking for answers.", "OpenAI's report: code execution on 41 production workers and four private repos downloaded. OpenAI was sued over it on Sep 30."], "related": [{"title": "OpenAI: The Hugging Face incident and the road ahead", "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"}, {"title": "Hugging Face: security incident disclosure", "url": "https://huggingface.co/blog/security-incident-july-2026"}, {"title": "Bulletin: Rogue AI didn't breach Hugging Face, human decisions did", "url": "https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/"}]}, {"id": "yt-kimi-k3-code-swarm", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Kimi K3 Code Swarm: 300 coding sub-agents in parallel", "url": "https://www.youtube.com/watch?v=i-x2PoejYeA", "source": "YouTube", "format": "watch", "meta": "Demo · from late summer", "gist": "One coding task fanned out to as many as 300 parallel sub-agents.", "summary": "A creator demos Moonshot AI's Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It's the trend Karpathy describes, at consumer scale.", "why": "", "deeper": [], "related": []}, {"id": "yc-state-of-startups-2026", "section": "startups", "sectionTitle": "Startups & YC", "title": "YC partners: startups are moving from bits to atoms", "url": "https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026", "source": "Y Combinator", "format": "watch", "meta": "Partner discussion", "gist": "Hard tech 8%→20% of the batch; solo founders ~19%; median MRR $20K.", "summary": "Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.", "why": "The clearest read on where early-stage capital and talent are heading.", "deeper": ["Defense rose from about 1.5% to about 5% of the batch.", "In one breakdown of 208 recent YC companies, median team size is 2 and 70% have three people or fewer.", "Recent raises: Vitalize Care (W23) $31M Series A for hospital staffing AI; Multiply Labs (S16) $75M Series B for drug-manufacturing robots.", "Paul Graham speaks at Cornell on Oct 28: 'How to Turn Yourself Into a Startup Founder'."], "related": [{"title": "What YC is funding in 2026: 208 startups broken down", "url": "https://pinggy.io/blog/what_yc_is_funding_in_2026/"}, {"title": "Cornell: Paul Graham to talk startups Oct 28", "url": "https://news.cornell.edu/stories/2026/10/y-combinator-founder-paul-graham-86-talk-startups-oct-28"}]}, {"id": "multiply-labs-series-b", "section": "startups", "sectionTitle": "Startups & YC", "title": "Multiply Labs (YC S16) raises $75M to put robots on drug lines", "url": "https://finance.yahoo.com/healthcare/articles/multiply-labs-raises-75-million-182600943.html", "source": "Yahoo Finance", "format": "read", "meta": "Press release", "gist": "Robotic clusters for biologics; claims 74% lower cost per dose, up to 100× throughput.", "summary": "The San Francisco company builds robotic systems that automate manual steps in making biologic medicines, starting with cell and gene therapy. Dr. Patrick Soon-Shiong led the round; AstraZeneca, Teradyne and Founders Fund are among the investors.", "why": "A clean example of the 'bits to atoms' shift YC's partners describe: hard tech and physical AI getting real money.", "deeper": ["Total raised is now over $100M since its 2016 founding.", "The platform is owned and operated by the pharma companies themselves, not run as an outsourced service.", "Expanding from cell and gene therapy into antibodies, viral vectors and mRNA."], "related": [{"title": "Axios Pro: Multiply Labs raises $75M", "url": "https://www.axios.com/pro/biotech-deals/2026/10/06/multiply-labs-75m-pharma-manufacturing-robots"}, {"title": "BioBuzz: Someone has to make the drugs", "url": "https://biobuzz.io/news/someone-has-to-make-the-drugs-75m-bet-on-robotics-and-the-next-biomanufacturing-workforce/"}]}, {"id": "nyt-bananas-iran-war", "section": "business", "sectionTitle": "Business stories", "title": "America's favorite fruit is being bruised by the Iran war", "url": "https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html", "source": "NYT", "format": "read", "meta": "", "gist": "One banana's journey shows the war's costs cascading through supply chains.", "summary": "Following one banana from farm to store shows how the war's economic effects have cascaded into surprising industries.", "why": "", "deeper": [], "related": []}, {"id": "nyt-musk-delta-starlink", "section": "business", "sectionTitle": "Business stories", "title": "Elon Musk, Delta and a feud over in-flight Wi-Fi", "url": "https://www.nytimes.com/2026/10/09/business/elon-musk-delta-starlink-wifi.html", "source": "NYT", "format": "read", "meta": "", "gist": "Musk publicly attacks Delta's CEO for not choosing Starlink.", "summary": "Mr. Musk, whose company SpaceX owns Starlink, has attacked the top executive of Delta Air Lines for not selecting the internet provider.", "why": "", "deeper": [], "related": []}, {"id": "acquired-home-depot", "section": "business", "sectionTitle": "Business stories", "title": "The Home Depot", "url": "https://www.acquired.fm/episodes/home-depot", "source": "Acquired", "format": "listen", "meta": "3 hr 35 min · Sep 14 · spread over a week of commutes", "gist": "Fired at 48 and 35, they built the category killer that replaced their old chain.", "summary": "Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.", "why": "", "deeper": [], "related": []}, {"id": "tao-math-2-0", "section": "wildcard", "sectionTitle": "Wildcard", "title": "Terence Tao: “Math 2.0”", "url": "https://teorth.github.io/tao-web/slides/math-2-0-caltech-2026.pdf", "source": "Terence Tao", "format": "read", "meta": "Caltech talk slides · PDF", "gist": "The Fields Medalist's slides on where mathematics goes next; the weekend's most-argued HN thread.", "summary": "Slides from Terence Tao's Caltech talk, which drew 487 points and nearly 480 comments on Hacker News over the weekend.", "why": "Outside your usual lanes, but it's where AI meets the hardest kind of human reasoning.", "deeper": [], "related": [{"title": "Hacker News discussion", "url": "https://news.ycombinator.com/item?id=50043026"}, {"title": "Odd Lots: How AI is upending the world of mathematics", "url": "https://omny.fm/shows/odd-lots/how-ai-is-upending-the-world-of-mathematics"}]}]}</script>
   <script>
   /* ---------------------------------------------------------------------------
    * Generated art for the folders' back panels: a domain-warped noise field
@@ -562,6 +591,7 @@
       ember:   { style: 'marble', colors: ['#07090c', '#16252c', '#3d5f68', '#1a1416', '#a3201a', '#ef4a2b', '#ff8a5c'], scale: 0.62, warp: 3.2, angle: -0.5, gloss: 0.55, veins: 0.6 },
       dusk:    { style: 'marble', colors: ['#120c18', '#3e2850', '#8f6c9c', '#2b1a24', '#b3502f', '#eab08a', '#fbe7d2'], scale: 0.75, warp: 3.6, angle: 0.8, gloss: 0.5, veins: 0.5 },
       glacier: { style: 'streak', colors: ['#f7f8fa', '#d9e2ea', '#9fb4c7', '#e8edf2', '#bccbd8', '#ffffff'], scale: 0.7, warp: 1.6, angle: 0.35, gloss: 0.25, veins: 0 },
+      tide:    { style: 'streak', colors: ['#0b1b22', '#14424f', '#2f7f86', '#e9e2cf', '#f6efe0', '#c9a46a', '#3b2a1c'], scale: 0.7, warp: 1.8, angle: 0.9, gloss: 0.3, veins: 0 },
       verdant: { style: 'marble', colors: ['#070b08', '#173024', '#4f7a5a', '#141812', '#a7843a', '#e9cf87', '#fbf3d6'], scale: 0.7, warp: 3.4, angle: 2.1, gloss: 0.5, veins: 0.5 }
     };
     function hexToRgb(hex) {
@@ -796,6 +826,22 @@
       folders.forEach(function (f) { f.classList.add('in'); });
     }
 
+    /* ---- Format filter: All / Read / Listen / Watch (remembered per device) ---- */
+    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+    function setFilter(f) {
+      if (!chips.some(function (c) { return c.dataset.filter === f; })) f = 'all';
+      if (f === 'all') delete document.body.dataset.filter; else document.body.dataset.filter = f;
+      chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.filter === f)); });
+      folders.forEach(function (fo) {
+        var any = Array.prototype.some.call(fo.querySelectorAll('.row'), function (r) { return f === 'all' || r.dataset.format === f; });
+        fo.classList.toggle('is-empty', !any);
+        if (any) shape(fo);
+      });
+      store.set('brief:filter', f);
+    }
+    chips.forEach(function (c) { c.addEventListener('click', function () { setFilter(c.dataset.filter); }); });
+    setFilter(store.get('brief:filter') || 'all');
+
     /* ---- Marks ---- */
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     function paintMarks(changedId) {
@@ -840,7 +886,7 @@
 
     /* ---- Click-in: a sheet pulled out of the folder ---- */
     var detail = $('detail');
-    var OPEN_LABEL = { listen: 'Listen ↗', watch: 'Watch ↗' };
+    var OPEN_LABEL = { read: 'Read ↗', listen: 'Listen ↗', watch: 'Watch ↗' };
 
     function fillList(listId, blockId, entries, render) {
       var ul = $(listId);
@@ -884,7 +930,7 @@
       });
       var open = $('d-open');
       open.href = it.url;
-      open.textContent = OPEN_LABEL[it.section] || 'Read ↗';
+      open.textContent = OPEN_LABEL[it.format] || 'Open ↗';
       paintDetailState();
       if (!detail.open) { if (detail.showModal) detail.showModal(); else detail.setAttribute('open', ''); }
       paintDetailArt(it.section);
