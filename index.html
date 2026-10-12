@@ -15,10 +15,11 @@
   <link rel="apple-touch-icon" href="icon-180.png">
   <script>document.documentElement.classList.add('js')</script>
   <style>
-    /* Calm folders: today's art on each folder's tab, every word on solid paper. */
+    /* A bento desk of glass folders. Hover a folder and its files rise out of the top;
+       click it to open the folder as a sheet of paper you can read. */
     :root {
       --desk: #efeeeb;
-      --dots: rgba(20, 20, 22, 0.06);
+      --dots: rgba(20, 20, 22, 0.07);
       --paper: #ffffff;
       --paper-2: #f6f5f3;
       --ink: #141416;
@@ -28,7 +29,13 @@
       --hair-2: rgba(20, 20, 22, 0.16);
       --solid: #141416;
       --solid-ink: #ffffff;
-      --lift: drop-shadow(0 1px 1px rgba(16, 18, 24, 0.06)) drop-shadow(0 10px 22px rgba(16, 18, 24, 0.09));
+      --glass-a: rgba(255, 255, 255, 0.30);
+      --glass-b: rgba(255, 255, 255, 0.80);
+      --glass-c: rgba(252, 252, 252, 0.95);
+      --back: linear-gradient(180deg, #f3f3f4 0%, #e3e3e6 100%);
+      --sheet-line: rgba(24, 24, 27, 0.09);
+      --rim-o: 1;
+      --shadow: rgba(16, 18, 24, 0.28);
       --bar-bg: rgba(239, 238, 235, 0.86);
       --scrim: rgba(12, 12, 14, 0.32);
       --focus: #2f6bff;
@@ -44,7 +51,7 @@
     @media (prefers-color-scheme: dark) {
       :root {
         --desk: #0b0b0c;
-        --dots: rgba(255, 255, 255, 0.05);
+        --dots: rgba(255, 255, 255, 0.06);
         --paper: #161618;
         --paper-2: #1e1e21;
         --ink: rgba(245, 245, 247, 0.92);
@@ -54,7 +61,13 @@
         --hair-2: rgba(255, 255, 255, 0.15);
         --solid: #f2f2f4;
         --solid-ink: #111113;
-        --lift: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.03)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+        --glass-a: rgba(20, 20, 22, 0.30);
+        --glass-b: rgba(16, 16, 18, 0.80);
+        --glass-c: rgba(12, 12, 14, 0.95);
+        --back: linear-gradient(180deg, #2a2a2e 0%, #121214 100%);
+        --sheet-line: rgba(255, 255, 255, 0.09);
+        --rim-o: 0.45;
+        --shadow: rgba(0, 0, 0, 0.6);
         --bar-bg: rgba(11, 11, 12, 0.86);
         --scrim: rgba(0, 0, 0, 0.6);
         --listen-bg: rgba(255, 170, 90, 0.14); --listen-ink: #f3b77f;
@@ -82,7 +95,7 @@
       background: var(--bar-bg); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--hair);
     }
-    .top-row { max-width: 1240px; margin: 0 auto; padding: 10px var(--gutter); display: flex; align-items: center; gap: 12px; min-height: 56px; }
+    .top-row { max-width: 1280px; margin: 0 auto; padding: 10px var(--gutter); display: flex; align-items: center; gap: 12px; min-height: 56px; }
     .brand { font-size: 16px; font-weight: 650; letter-spacing: -0.015em; }
     .top-date { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
     .spacer { flex: 1; }
@@ -93,74 +106,161 @@
     .ghost:hover { background: var(--hair); }
     .ghost svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
-    .wrap { max-width: 1240px; margin: 0 auto; padding: 22px var(--gutter) calc(40px + env(safe-area-inset-bottom)); }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 20px var(--gutter) calc(40px + env(safe-area-inset-bottom)); }
+    .latest-link { display: inline-block; margin-bottom: 14px; font-size: 13px; border-bottom: 1px solid var(--hair-2); }
 
-    /* ---- Intro ---- */
-    .intro { display: grid; gap: 16px; margin-bottom: 26px; }
-    .lede { font-size: 16.5px; line-height: 1.5; max-width: 62ch; text-wrap: pretty; }
+    /* ---- Bento ---- */
+    .bento { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(96px, auto); }
+    .cell { min-width: 0; }
+    .cell:not(.folder) { background: var(--paper); border: 1px solid var(--hair); border-radius: 20px; padding: 16px 18px; }
+    .cell-label { font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+    .cell-lede, .cell-stats, .cell-week, .card-lead, .card-wildcard { grid-column: span 2; }
+    .folder { grid-row: span 2; min-height: 214px; }
+    .card-lead { grid-row: span 5; }
+    @media (max-width: 699px) {
+      .bento .cell-stats { display: flex; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+      .bento .cell-stats::-webkit-scrollbar { display: none; }
+      .bento .cell-stats .tile { flex: 0 0 44%; scroll-snap-align: start; }
+      .card-lead { grid-row: span 6; }
+      .card-lead .f-label { bottom: 24px; }
+      .f-label { left: 14px; right: 14px; bottom: 13px; }
+      .f-title { font-size: 15.5px; }
+      .f-teaser { font-size: 13px; }
+    }
+    .card-wildcard { order: 10; }
+
+    .lede { font-size: 16.5px; line-height: 1.5; text-wrap: pretty; }
     .feedback-note { margin-top: 8px; font-size: 13px; color: var(--ink-3); }
-    .latest-link { display: inline-block; margin-top: 10px; font-size: 13px; border-bottom: 1px solid var(--hair-2); }
-    .snapshot {
-      display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); gap: 10px;
-      overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory;
-      margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter);
+    .commute { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hair); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+    .commute-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .fmt-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .fmt-btn {
+      min-height: 40px; padding: 0 14px 0 11px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 550; background: var(--paper-2); box-shadow: inset 0 0 0 1px var(--hair-2);
+      transition: transform .3s var(--spring);
     }
-    .snapshot::-webkit-scrollbar { display: none; }
-    .tile {
-      scroll-snap-align: start; display: flex; flex-direction: column; gap: 3px; padding: 12px 14px; min-width: 0;
-      border-radius: 14px; background: var(--paper); border: 1px solid var(--hair);
+    .fmt-btn:hover { transform: translateY(-1px); }
+    .fmt-btn:active { transform: scale(.96); }
+    .fmt-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .fmt-btn--listen { background: var(--listen-bg); color: var(--listen-ink); box-shadow: none; }
+    .fmt-btn--watch { background: var(--watch-bg); color: var(--watch-ink); box-shadow: none; }
+    .fmt-count { font-family: var(--mono); font-size: 11.5px; font-weight: 400; opacity: .75; }
+
+    .cell-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; overflow: hidden; }
+    .tile { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; min-width: 0; }
+    .tile + .tile { border-left: 1px solid var(--hair); }
+    a.tile:hover { background: var(--paper-2); }
+    .tile-label { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tile-value { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; }
+    .tile-note { font-size: 12px; color: var(--ink-3); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .week-list { list-style: none; display: flex; gap: 18px; overflow-x: auto; scrollbar-width: none; margin: 0 -18px; padding: 0 18px; }
+    .week-list::-webkit-scrollbar { display: none; }
+    .week-list li { flex: none; width: 200px; display: flex; flex-direction: column; gap: 2px; }
+    .week-when { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+    .week-what { font-size: 13.5px; line-height: 1.38; color: var(--ink-2); }
+
+    /* ---- Folder: back + art, files in the pocket, frosted front ----
+       JS measures each folder and sets --ft (front top), --fh (front height) and --lift. */
+    .folder { --ft: 120px; --fh: 120px; --lift: 60px; position: relative; isolation: isolate; min-height: 200px; }
+    .f-back {
+      position: absolute; inset: 0; overflow: hidden; border-radius: 22px; background: var(--back);
+      transition: translate 1s var(--ease), opacity .9s var(--ease);
     }
-    a.tile:hover { border-color: var(--hair-2); }
-    .tile-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-    .tile-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; }
-    .tile-note { font-size: 12px; color: var(--ink-3); line-height: 1.35;
+    .f-back::before { content: ""; position: absolute; left: 16px; right: 16px; bottom: -8px; height: 50px; }
+    .folder::before {
+      content: ""; position: absolute; z-index: -1; left: 16px; right: 16px; bottom: -6px; height: 56px; border-radius: 40px;
+      background: var(--shadow); filter: blur(20px); transition: opacity .9s var(--ease);
+    }
+    .f-art { position: absolute; left: 0; top: 0; display: block; max-width: none; opacity: 0; filter: blur(12px) saturate(.6);
+      transition: opacity 1.1s var(--ease), filter 1.1s var(--ease), transform 1.1s var(--ease); }
+    .f-art[data-ready] { opacity: 1; filter: none; }
+    .f-sheen { position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 26%),
+                  radial-gradient(120% 80% at 80% 0%, rgba(255,255,255,.14), rgba(255,255,255,0) 60%); }
+
+    .f-files { position: absolute; inset: 0; z-index: 5; pointer-events: none; clip-path: inset(-400px -400px 12px -400px); }
+    .sheet {
+      position: absolute; left: 10%; right: 10%; top: calc(var(--ft) - 6px); height: min(calc(var(--fh) * .9), 200px);
+      border-radius: 14px; overflow: hidden; pointer-events: auto; text-align: left;
+      background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 .5px rgba(0,0,0,.12), 0 10px 24px -10px rgba(10,12,20,.35);
+      transform-origin: 50% 100%;
+      transform: translateY(calc(var(--d) * -7px)) rotate(calc(var(--s) * 1.2deg));
+      transition: transform .7s var(--spring) calc(var(--d) * 40ms), opacity .4s var(--ease), translate .9s var(--ease);
+    }
+    .sheet-lines { position: absolute; left: 12px; right: 12px; top: 52px; display: flex; flex-direction: column; gap: 8px; }
+    .sheet-lines i { display: block; height: 5px; border-radius: 3px; background: var(--sheet-line); }
+    .sheet-lines i:nth-child(2) { width: 88%; } .sheet-lines i:nth-child(3) { width: 64%; } .sheet-lines i:nth-child(4) { width: 80%; }
+    .sheet-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .8s var(--ease); }
+    .sheet-art[data-ready] { opacity: 1; }
+    .sheet--listen, .sheet--watch { background: #1a1a1d; }
+    .sheet--listen::after, .sheet--watch::after {
+      content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      background: linear-gradient(180deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.18) 55%, rgba(0,0,0,0) 100%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+    }
+    .sheet-head { position: absolute; left: 12px; right: 12px; top: 10px; z-index: 1; display: flex; flex-direction: column; gap: 3px; }
+    .sheet-fmt { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .sheet-name { font-size: 13px; font-weight: 600; line-height: 1.28; letter-spacing: -0.005em; color: var(--ink);
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .sheet--listen .sheet-fmt, .sheet--watch .sheet-fmt { color: rgba(255,255,255,.72); }
+    .sheet--listen .sheet-name, .sheet--watch .sheet-name { color: #fafafa; }
+    .sheet.is-done { opacity: .55; }
+    .sheet.is-done .sheet-name { text-decoration: line-through; }
+    .sheet.is-nope { display: none; }
 
-    /* ---- This week strip ---- */
-    .week {
-      display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; padding: 12px 16px;
-      background: var(--paper); border: 1px solid var(--hair); border-radius: 14px;
-      overflow-x: auto; scrollbar-width: none;
+    .f-front {
+      position: absolute; left: 0; right: 0; bottom: 0; top: var(--ft); z-index: 10;
+      background: linear-gradient(180deg, var(--glass-a) 0%, var(--glass-b) 38%, var(--glass-c) 100%);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5); backdrop-filter: blur(20px) saturate(1.5);
+      border-radius: 22px; transform-origin: 50% 100%;
+      transition: transform .8s var(--spring), translate 1s var(--ease), opacity 1s var(--ease);
     }
-    .week::-webkit-scrollbar { display: none; }
-    .week-title { flex: none; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-    .week-list { list-style: none; display: flex; gap: 24px; }
-    .week-list li { flex: none; display: flex; gap: 8px; align-items: baseline; max-width: 260px; }
-    .week-when { flex: none; font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
-    .week-what { font-size: 13.5px; line-height: 1.35; color: var(--ink-2); }
+    .f-front[data-shaped] { border-radius: 0; }
+    .f-rim { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; fill: none; opacity: var(--rim-o); }
+    .f-hit { position: absolute; inset: 0; z-index: 1; border-radius: 0; }
+    .f-hit:focus-visible { outline-offset: -4px; }
+    .f-label { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 2; pointer-events: none; display: flex; flex-direction: column; gap: 4px; }
+    .f-title { font-size: 17px; font-weight: 650; letter-spacing: -0.015em; line-height: 1.2; }
+    .f-teaser { font-size: 14px; line-height: 1.38; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .f-meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+    .f-heads { list-style: none; margin: 4px 0 2px; }
+    .f-heads li { display: flex; flex-direction: column; gap: 3px; padding: 11px 0; border-top: 1px solid var(--hair); }
+    .f-head-title { font-size: 16.5px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+    .f-head-gist { font-size: 14px; line-height: 1.4; color: var(--ink-2); }
+    .f-heads li:first-child { border-top: 0; }
+    .card-lead .f-label { top: 34px; bottom: 18px; justify-content: flex-start; }
+    .card-lead .f-title { font-size: 19px; }
+    .card-lead .f-meta { margin-top: auto; }
 
-    /* ---- Format filter chips ---- */
-    .filters { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
-    .filters::-webkit-scrollbar { display: none; }
-    .chip {
-      flex: none; min-height: 38px; padding: 0 15px; border-radius: 999px; display: inline-flex; align-items: center; gap: 7px;
-      font-size: 14px; font-weight: 550; color: var(--ink-2); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hair-2);
+    /* hover (or keyboard focus): the glass leans toward you and the files rise and fan */
+    @media (hover: hover) {
+      .folder:hover .f-front, .folder:focus-within .f-front { transform: perspective(900px) rotateX(-8deg); }
+      .folder:hover .sheet, .folder:focus-within .sheet {
+        transform: translate(calc(var(--s) * 9%), calc(-1 * var(--lift) - var(--d) * 16px)) rotate(calc(var(--s) * 3.5deg));
+      }
+      .folder:hover .sheet:hover {
+        transform: translate(calc(var(--s) * 9%), calc(-1 * var(--lift) - var(--d) * 16px - 12px)) rotate(calc(var(--s) * 2deg));
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 .5px rgba(0,0,0,.12), 0 22px 40px -14px rgba(10,12,20,.45);
+        transition-delay: 0s; z-index: 9 !important;
+      }
+      .folder:hover { z-index: 3; }
     }
-    .chip span { font-family: var(--mono); font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
-    .chip[aria-pressed="true"] { background: var(--solid); color: var(--solid-ink); box-shadow: none; }
-    .chip[aria-pressed="true"] span { color: inherit; opacity: .7; }
-    body[data-filter="read"] .row:not([data-format="read"]),
-    body[data-filter="listen"] .row:not([data-format="listen"]),
-    body[data-filter="watch"] .row:not([data-format="watch"]),
-    .folder.is-empty { display: none; }
+    /* touch: no hover, so the files peek a little higher */
+    @media (hover: none) {
+      .sheet { transform: translate(calc(var(--s) * 4%), calc(var(--lift) * -0.28 - var(--d) * 9px)) rotate(calc(var(--s) * 2deg)); }
+      .folder:active .f-front { transform: perspective(900px) rotateX(-5deg); }
+    }
 
-    /* ---- Board: the lead across the top, then one folder per interest ---- */
-    .board { display: flex; flex-direction: column; gap: 20px; }
-    .interests { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+    /* entrance: each folder assembles itself the first time it's on screen */
+    .js .folder:not(.in) .f-back { translate: 0 18px; opacity: 0; }
+    .js .folder:not(.in) .sheet { translate: 0 -80px; opacity: 0; }
+    .js .folder:not(.in) .f-front { translate: 0 30px; opacity: 0; }
+    .js .folder:not(.in)::before { opacity: 0; }
+    .folder.in .f-front { transition-delay: 0s, .3s, .3s; }
 
-    /* ---- Folder: art tab strip + paper card ---- */
-    .folder { position: relative; min-width: 0; filter: var(--lift); transition: opacity .6s var(--ease), transform .6s var(--ease); }
-    .js .folder:not(.in) { opacity: 0; transform: translateY(10px); }
-    .f-tab { position: relative; height: 30px; overflow: hidden; border-radius: 16px 16px 0 0; background: var(--paper-2); }
-    .f-tab[data-shaped] { border-radius: 0; }
-    .f-art { position: absolute; left: 0; top: 0; display: block; max-width: none; opacity: 0; transition: opacity .8s var(--ease); }
-    .f-art[data-ready] { opacity: 1; }
-    .f-card { background: var(--paper); border-radius: 0 0 18px 18px; padding: 0 18px 4px; }
-    .f-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 0 11px; border-bottom: 1px solid var(--hair-2); }
-    .f-title { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
-    .f-meta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
-
-    /* ---- Rows: checkbox · headline + gist · ✕ ---- */
+    /* ---- Rows (inside an opened folder) ---- */
     .rows { list-style: none; }
     .row {
       display: grid; grid-template-columns: 24px minmax(0, 1fr) 28px; column-gap: 12px; align-items: start;
@@ -169,10 +269,11 @@
     .row:first-child { border-top: 0; }
     .row-open { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .row-title { font-size: 17px; font-weight: 600; letter-spacing: -0.012em; line-height: 1.3; text-wrap: pretty; }
-    .row-gist { font-size: 14.5px; line-height: 1.45; color: var(--ink-2);
-      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .row-src { margin-top: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-gist { font-size: 15px; line-height: 1.45; color: var(--ink-2); }
+    .row-sum { font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+    .row-src { margin-top: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-open:hover .row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--hair-2); }
+    .row-lead .row-title { font-size: 19px; font-weight: 650; }
     .fmt {
       display: inline-block; margin-right: 8px; padding: 1px 6px; border-radius: 5px; vertical-align: 1px;
       font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
@@ -180,19 +281,13 @@
     }
     .fmt-listen { color: var(--listen-ink); background: var(--listen-bg); box-shadow: none; }
     .fmt-watch { color: var(--watch-ink); background: var(--watch-bg); box-shadow: none; }
-    .row-open:hover .row-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: var(--hair-2); }
-
-    .row-lead { padding-top: 16px; padding-bottom: 18px; }
-    .row-lead .row-title { font-size: 20px; font-weight: 650; line-height: 1.25; letter-spacing: -0.018em; }
-    .row-sum { font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
-    .row-why { display: block; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: var(--paper-2); font-size: 14.5px; line-height: 1.45; color: var(--ink); }
-    .row-why b { display: block; font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 2px; }
+    .row-bucket { margin-right: 8px; }
 
     .act { position: relative; display: grid; place-items: center; color: var(--ink-3); }
     .act::after { content: ""; position: absolute; inset: -10px; }
     .act svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
     .act-done { width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--hair-2); color: transparent;
-      transition: background .2s var(--ease), box-shadow .2s var(--ease), transform .3s var(--spring); }
+      transition: background .2s var(--ease), box-shadow .2s var(--ease); }
     .act-done svg { width: 14px; height: 14px; stroke-width: 2.4; }
     .act-done:hover { color: var(--ink-3); box-shadow: inset 0 0 0 1.5px var(--ink-3); }
     .act-done[aria-pressed="true"] { background: var(--solid); box-shadow: none; color: var(--solid-ink); animation: pop .35s var(--spring); }
@@ -200,68 +295,64 @@
     .act-nope { width: 28px; height: 28px; border-radius: 8px; opacity: .7; transition: opacity .2s var(--ease), background .2s var(--ease); }
     .act-nope svg { width: 15px; height: 15px; stroke-width: 1.8; }
     .act-nope:hover, .act-nope:focus-visible, .act-nope[aria-pressed="true"] { opacity: 1; background: var(--hair); color: var(--ink); }
-    .row-lead .act-done { margin-top: 3px; }
-
     .row.is-done .row-open { opacity: .5; }
     .row.is-done .row-title { text-decoration: line-through; text-decoration-thickness: 1px; }
     .row.is-nope { padding: 9px 0; }
-    .row.is-nope .row-gist, .row.is-nope .row-sum, .row.is-nope .row-why, .row.is-nope .row-src { display: none; }
+    .row.is-nope .row-gist, .row.is-nope .row-sum, .row.is-nope .row-src { display: none; }
     .row.is-nope .row-title { font-size: 14px; font-weight: 500; color: var(--ink-3); }
     .row.is-nope .act-done { visibility: hidden; }
 
-    /* ---- Radar ---- */
-    .radar { list-style: none; }
-    .radar li { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--hair); }
-    .radar li:first-child { border-top: 0; }
-    .radar-when { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); padding-top: 2px; }
-    .radar-what { font-size: 14.5px; line-height: 1.45; color: var(--ink-2); }
-    .paper { background: var(--paper); border-radius: 18px; padding: 4px 18px; filter: var(--lift); }
-    .radar.archive li { display: block; padding: 0; }
-    .radar.archive a { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; padding: 13px 0; }
-
     /* ---- Footer ---- */
-    .foot { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+    .foot { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
     .foot a { font-size: 13px; font-weight: 500; color: var(--ink-2); min-height: 40px; display: inline-flex; align-items: center; }
     .sync-status { flex: 1 1 260px; font-size: 12.5px; color: var(--ink-3); }
+    .paper { background: var(--paper); border-radius: 18px; padding: 4px 18px; border: 1px solid var(--hair); }
+    .radar { list-style: none; }
+    .radar.archive li { border-top: 1px solid var(--hair); }
+    .radar.archive li:first-child { border-top: 0; }
+    .radar.archive a { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; padding: 13px 0; }
+    .radar-when { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); padding-top: 2px; }
+    .radar-what { font-size: 14.5px; line-height: 1.45; color: var(--ink-2); }
 
-    /* ---- Tablet ---- */
+    /* ---- Tablet: 6 columns ---- */
     @media (min-width: 700px) {
-      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
-      .interests { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .bento { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: minmax(104px, auto); gap: 16px; }
+      .cell-lede { grid-column: 1 / 5; grid-row: 1 / 3; }
+      .cell-stats { grid-column: 5 / 7; grid-row: 1 / 3; grid-template-columns: 1fr; }
+      .cell-stats .tile + .tile { border-left: 0; border-top: 1px solid var(--hair); }
+      .cell-week { grid-column: 1 / 7; grid-row: 3; }
+      .card-lead { grid-column: 1 / 5; grid-row: 4 / 8; }
+      .card-markets { grid-column: 5 / 7; grid-row: 4 / 6; }
+      .card-ai { grid-column: 5 / 7; grid-row: 6 / 8; }
+      .card-startups { grid-column: 1 / 3; grid-row: 8 / 10; }
+      .card-business { grid-column: 3 / 5; grid-row: 8 / 10; }
+      .card-wildcard { grid-column: 5 / 7; grid-row: 8 / 10; }
+      .week-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
+      .week-list li { width: auto; }
       .lede { font-size: 18px; }
-      .f-tab { height: 34px; }
     }
-    @media (max-width: 899px) {
-      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    }
-    /* ---- Lead in columns once there's room ---- */
-    @media (min-width: 900px) {
-      .week { overflow: visible; }
-      .week-list { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 20px; }
-      .week-list li { max-width: none; flex-direction: column; gap: 2px; }
-      .card-lead .rows { display: grid; grid-template-columns: repeat(var(--lead), minmax(0, 1fr)); column-gap: 28px; }
-      .card-lead .row { border-top: 0; }
-      .card-lead .row + .row { border-left: 1px solid var(--hair); padding-left: 24px; margin-left: -4px; }
-      .card-lead .row-sum { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-    }
-    /* ---- Desktop ---- */
+    /* ---- Desktop: 12 columns, about one screen ---- */
     @media (min-width: 1100px) {
-      .intro { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: center; }
-      .tile-value { font-size: 20px; }
-      .interests { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .card-business { grid-column: span 2; }
-      .card-business .rows { columns: 2; column-gap: 28px; }
-      .card-business .row { break-inside: avoid; }
-      .card-business .row:nth-child(2) { border-top: 0; }
-      body[data-filter] .card-business { grid-column: auto; }
-      body[data-filter] .card-business .rows { columns: 1; }
+      .bento { grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: minmax(110px, auto); }
+      .cell-lede { grid-column: 1 / 6; grid-row: 1 / 4; display: flex; flex-direction: column; }
+      .cell-lede .commute { margin-top: auto; }
+      .cell-stats { grid-column: 6 / 13; grid-row: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .cell-stats .tile + .tile { border-top: 0; border-left: 1px solid var(--hair); }
+      .cell-week { grid-column: 6 / 10; grid-row: 2 / 4; }
+      .week-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+      .card-wildcard { grid-column: 10 / 13; grid-row: 2 / 4; }
+      .card-lead { grid-column: 1 / 7; grid-row: 4 / 8; }
+      .card-markets { grid-column: 7 / 10; grid-row: 4 / 6; }
+      .card-ai { grid-column: 10 / 13; grid-row: 4 / 6; }
+      .card-startups { grid-column: 7 / 10; grid-row: 6 / 8; }
+      .card-business { grid-column: 10 / 13; grid-row: 6 / 8; }
     }
 
-    /* ---- Click-in sheet ---- */
+    /* ---- Opened folder + item sheets ---- */
     dialog { color: var(--ink); border: 0; padding: 0; max-width: none; max-height: none; background: var(--paper); }
     dialog::backdrop { background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-    .detail { margin: auto 0 0; width: 100%; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 22px 22px 0 0; }
-    .detail[open] { animation: sheet-up .45s var(--ease); }
+    .detail, .fsheet { margin: auto 0 0; width: 100%; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 22px 22px 0 0; }
+    .detail[open], .fsheet[open] { animation: sheet-up .45s var(--ease); }
     @keyframes sheet-up { from { transform: translateY(30%); opacity: .5; } to { transform: none; opacity: 1; } }
     .d-art { position: relative; height: 96px; overflow: hidden; background: radial-gradient(120% 140% at 30% 0%, #3a3a3f 0%, #121214 70%); }
     .d-art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity .6s var(--ease); }
@@ -272,6 +363,10 @@
     .key { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; color: #111113;
       background: rgba(255, 255, 255, 0.86); box-shadow: 0 0 0 1px rgba(0,0,0,.12), 0 4px 10px -6px rgba(0,0,0,.4); }
     .key svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .fs-body { padding: 18px 22px calc(20px + env(safe-area-inset-bottom)); }
+    .fs-title { font-size: 24px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; }
+    .fs-title:focus { outline: none; }
+    .fs-meta { margin: 4px 0 6px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
     .d-body { padding: 20px 22px calc(24px + env(safe-area-inset-bottom)); }
     .d-src { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
     .d-title { font-size: 24px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.22; margin: 6px 0 12px; text-wrap: pretty; }
@@ -295,32 +390,30 @@
     .btn-primary, .btn[aria-pressed="true"].btn-done { background: var(--solid); box-shadow: none; color: var(--solid-ink); }
     .btn[aria-pressed="true"].btn-nope { background: var(--hair-2); color: var(--ink-3); }
     @media (min-width: 900px) {
-      .detail { margin: auto; width: min(640px, 92vw); max-height: 86vh; border-radius: 22px; box-shadow: 0 30px 70px -25px rgba(0,0,0,.5); }
-      .detail[open] { animation: sheet-rise .4s var(--ease); }
-      @keyframes sheet-rise { from { transform: translateY(20px); opacity: 0; } to { transform: none; opacity: 1; } }
-      .d-body { padding: 24px 32px 30px; }
+      .detail, .fsheet { margin: auto; width: min(640px, 92vw); max-height: 86vh; border-radius: 22px; box-shadow: 0 30px 70px -25px rgba(0,0,0,.5); }
+      .detail[open], .fsheet[open] { animation: sheet-rise .4s var(--ease); }
+      @keyframes sheet-rise { from { transform: translateY(20px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+      .d-body, .fs-body { padding: 24px 32px 30px; }
       .d-title { font-size: 27px; }
     }
 
     /* ---- Sync settings ---- */
-    .sheet { margin: auto auto 0; width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; border-radius: 22px 22px 0 0;
+    .sheet-dlg { margin: auto auto 0; width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; border-radius: 22px 22px 0 0;
       padding: 24px var(--gutter) calc(24px + env(safe-area-inset-bottom)); }
-    @media (min-width: 900px) { .sheet { margin: auto; border-radius: 22px; padding: 28px 30px; } }
-    .sheet h2 { font-size: 19px; font-weight: 650; letter-spacing: -0.015em; margin-bottom: 10px; }
-    .sheet p, .sheet li { font-size: 15px; color: var(--ink-2); margin-bottom: 10px; }
-    .sheet ol { padding-left: 20px; margin-bottom: 14px; }
-    .sheet a { border-bottom: 1px solid var(--hair-2); }
-    .sheet label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-    .sheet input { width: 100%; min-height: 46px; padding: 0 14px; margin: 6px 0 14px; font-size: 16px; font-family: var(--mono);
+    @media (min-width: 900px) { .sheet-dlg { margin: auto; border-radius: 22px; padding: 28px 30px; } }
+    .sheet-dlg h2 { font-size: 19px; font-weight: 650; letter-spacing: -0.015em; margin-bottom: 10px; }
+    .sheet-dlg p, .sheet-dlg li { font-size: 15px; color: var(--ink-2); margin-bottom: 10px; }
+    .sheet-dlg ol { padding-left: 20px; margin-bottom: 14px; }
+    .sheet-dlg a { border-bottom: 1px solid var(--hair-2); }
+    .sheet-dlg label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+    .sheet-dlg input { width: 100%; min-height: 46px; padding: 0 14px; margin: 6px 0 14px; font-size: 16px; font-family: var(--mono);
       color: var(--ink); background: var(--paper-2); border: 0; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hair-2); }
     .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .sheet-status { margin-top: 12px; font-size: 13px; color: var(--ink-3); min-height: 1.4em; }
 
-    @media (max-width: 699px) { .row-why { display: none; } }
-    @media (max-width: 420px) { .top-date { display: none; } .tile-value { font-size: 20px; } .row-lead .row-title { font-size: 19.5px; } }
+    @media (max-width: 420px) { .top-date { display: none; } .tile-value { font-size: 17px; } .tile { padding: 12px; } }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { transition-duration: 0s !important; animation: none !important; }
-      .js .folder:not(.in) { opacity: 1; transform: none; }
+      *, *::before, *::after { transition-duration: 0s !important; transition-delay: 0s !important; animation: none !important; }
     }
   </style>
 </head>
@@ -339,21 +432,44 @@
 
   <main class="wrap">
     <h1 style="position:absolute;left:-9999px">Daily brief for Monday, October 12</h1>
-    <div class="intro">
-      <div>
-        <p class="lede">Oil above $100 and a 10-year near 5.3% put inflation back on the front page ahead of Wednesday&#x27;s CPI. Karpathy maps how far the AI frontier has pulled ahead, a Nobel goes to the economists behind forward guidance, and robots are coming for drug manufacturing.</p>
-        <p class="feedback-note">First edition. Tap ✓ when you&#x27;ve read or heard something and ✗ when it&#x27;s not for you; tomorrow&#x27;s picks learn from both.</p>
-        
+    
+    <div class="bento"><section class="cell cell-lede"><h2 class="cell-label">This morning</h2><p class="lede">Oil above $100 and a 10-year near 5.3% put inflation back on the front page ahead of Wednesday&#x27;s CPI. Karpathy maps how far the AI frontier has pulled ahead, a Nobel goes to the economists behind forward guidance, and robots are coming for drug manufacturing.</p><p class="feedback-note">First edition. Tap ✓ when you&#x27;ve read or heard something and ✗ when it&#x27;s not for you; tomorrow&#x27;s picks learn from both.</p><div class="commute"><span class="commute-label">Commute mode</span><div class="fmt-btns"><button type="button" class="fmt-btn fmt-btn--read" data-format="read" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h6a2 2 0 0 1 2 2V19a2 2 0 0 0-2-2H5zM19 5.5h-6a2 2 0 0 0-2 2V19a2 2 0 0 1 2-2h6z"/></svg><span class="fmt-label">Read</span><span class="fmt-count">10</span></button><button type="button" class="fmt-btn fmt-btn--listen" data-format="listen" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13.5" width="4" height="6" rx="1.5"/><rect x="16.5" y="13.5" width="4" height="6" rx="1.5"/></svg><span class="fmt-label">Listen</span><span class="fmt-count">3</span></button><button type="button" class="fmt-btn fmt-btn--watch" data-format="watch" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.5 9.5v5l4-2.5z"/></svg><span class="fmt-label">Watch</span><span class="fmt-count">2</span></button></div></div></section><section class="cell cell-stats" aria-label="Markets"><a class="tile" href="https://wtop.com/national/2026/10/how-major-us-stock-indexes-fared-friday-10-9-2026/" target="_blank" rel="noopener"><span class="tile-label">S&amp;P 500</span><span class="tile-value">7,811</span><span class="tile-note">Fri close · +0.59%</span></a><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">10-yr Treasury</span><span class="tile-value">5.29%</span><span class="tile-note">Oct 8 · near 2002 high</span></a><a class="tile" href="https://investinglive.com/news/week-ahead-us-inflation-and-retail-sales-lead-a-busy-economic-calendar-be-aware/" target="_blank" rel="noopener"><span class="tile-label">Next up · Wed</span><span class="tile-value">CPI</span><span class="tile-note">3.6% y/y expected · 8:30am</span></a></section><section class="cell cell-week" aria-labelledby="week-h"><h2 class="cell-label" id="week-h">This week</h2><ul class="week-list"><li><span class="week-when">Wed Oct 14</span><span class="week-what">September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core.</span></li><li><span class="week-when">Thu Oct 15</span><span class="week-what">PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET.</span></li><li><span class="week-when">This week</span><span class="week-what">Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand.</span></li><li><span class="week-when">Oct 27–28</span><span class="week-what">FOMC meeting. The Fed has penciled in one more hike this year.</span></li></ul></section>
+    <section class="cell folder card-wildcard" id="wildcard" data-art="tide" aria-labelledby="wildcard-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--read" data-id="tao-math-2-0" tabindex="-1" style="--d:0;--s:0.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Terence Tao: “Math 2.0”</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open Wildcard, 1 item"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="wildcard-h">Wildcard</h2>
+          <p class="f-teaser">Terence Tao: “Math 2.0”</p>
+          <span class="f-meta" data-total="1">1 item</span>
+        </div>
       </div>
-      <div class="snapshot"><a class="tile" href="https://wtop.com/national/2026/10/how-major-us-stock-indexes-fared-friday-10-9-2026/" target="_blank" rel="noopener"><span class="tile-label">S&amp;P 500</span><span class="tile-value">7,811</span><span class="tile-note">Fri close · +0.59%</span></a><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">10-yr Treasury</span><span class="tile-value">5.29%</span><span class="tile-note">Oct 8 · near 2002 high</span></a><a class="tile" href="https://investinglive.com/news/week-ahead-us-inflation-and-retail-sales-lead-a-busy-economic-calendar-be-aware/" target="_blank" rel="noopener"><span class="tile-label">Next up · Wed</span><span class="tile-value">CPI</span><span class="tile-note">3.6% y/y expected · 8:30am</span></a></div>
-    </div>
-
-    <section class="week" aria-labelledby="week-h"><h2 class="week-title" id="week-h">This week</h2><ul class="week-list"><li><span class="week-when">Wed Oct 14</span><span class="week-what">September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core.</span></li><li><span class="week-when">Thu Oct 15</span><span class="week-what">PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET.</span></li><li><span class="week-when">This week</span><span class="week-what">Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand.</span></li><li><span class="week-when">Oct 27–28</span><span class="week-what">FOMC meeting. The Fed has penciled in one more hike this year.</span></li></ul></section><div class="filters" role="group" aria-label="Show"><button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>15</span></button><button type="button" class="chip" data-filter="read" aria-pressed="false">Read <span>10</span></button><button type="button" class="chip" data-filter="listen" aria-pressed="false">Listen <span>3</span></button><button type="button" class="chip" data-filter="watch" aria-pressed="false">Watch <span>2</span></button></div><div class="board" style="--lead:3">
-    <section class="folder card-lead" id="lead" data-art="aurora" aria-labelledby="lead-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="lead-h">The lead</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
+      <div class="f-list" hidden><ul class="rows">
+        <li class="row" data-id="tao-math-2-0" data-format="read">
+          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-title">Terence Tao: “Math 2.0”</span>
+            <span class="row-gist">The Fields Medalist&#x27;s slides on where mathematics goes next; the weekend&#x27;s most-argued HN thread.</span>
+            <span class="row-src"><span class="fmt fmt-read">Read</span>Terence Tao · Caltech talk slides · PDF</span>
+          </button>
+          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
+        </li></ul></div>
+    </section>
+    <section class="cell folder card-lead" id="lead" data-art="aurora" aria-labelledby="lead-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--read" data-id="nobel-hall-woodford" tabindex="-1" style="--d:2;--s:1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Robert Hall and Michael Woodford win the economics Nobel</span></span></button><button type="button" class="sheet sheet--read" data-id="karpathy-capability-funnel" tabindex="-1" style="--d:1;--s:0.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</span></span></button><button type="button" class="sheet sheet--read" data-id="oil-yields-inflation" tabindex="-1" style="--d:0;--s:-1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Oil tops $104 and the 10-year sits near a 24-year high</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open The lead, 3 items"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="lead-h">The lead</h2>
+          <ul class="f-heads"><li><span class="f-head-title">Oil tops $104 and the 10-year sits near a 24-year high</span><span class="f-head-gist">Gulf shipping attacks push Brent past $104; 10-year at 5.29%, highest since 2002.</span></li><li><span class="f-head-title">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</span><span class="f-head-gist">~6B barely use LLMs; ~5,000 inside labs run agent swarms for weeks.</span></li><li><span class="f-head-title">Robert Hall and Michael Woodford win the economics Nobel</span><span class="f-head-gist">Two New Keynesians honoured; Woodford&#x27;s work underpins forward guidance.</span></li></ul>
+          <span class="f-meta" data-total="3">3 items</span>
+        </div>
+      </div>
+      <div class="f-list" hidden><ul class="rows">
         <li class="row row-lead" data-id="oil-yields-inflation" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
@@ -380,14 +496,21 @@
             <span class="row-src"><span class="fmt fmt-read">Read</span>The Economist</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
+        </li></ul></div>
+    </section>
+    <section class="cell folder card-markets" id="markets" data-art="verdant" aria-labelledby="markets-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--listen" data-id="oddlots-treasuries-risky" tabindex="-1" style="--d:2;--s:1.00"><canvas class="sheet-art"></canvas><span class="sheet-head"><span class="sheet-fmt">Listen</span><span class="sheet-name">Why Treasuries are &#x27;risky&#x27; again</span></span></button><button type="button" class="sheet sheet--read" data-id="nyt-energy-order-tested" tabindex="-1" style="--d:1;--s:0.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">World&#x27;s energy order tested again as the Iran war&#x27;s reach extends</span></span></button><button type="button" class="sheet sheet--read" data-id="trump-warsh-hike" tabindex="-1" style="--d:0;--s:-1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Trump says Warsh should have voted against September&#x27;s rate hike</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open Markets &amp; macro, 3 items"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="markets-h">Markets & macro</h2>
+          <p class="f-teaser">Trump says Warsh should have voted against September&#x27;s rate hike</p>
+          <span class="f-meta" data-total="3">3 items</span>
+        </div>
       </div>
-    </section><div class="interests">
-    <section class="folder card-markets" id="markets" data-art="verdant" aria-labelledby="markets-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="markets-h">Markets & macro</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
+      <div class="f-list" hidden><ul class="rows">
         <li class="row" data-id="trump-warsh-hike" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
@@ -414,14 +537,21 @@
             <span class="row-src"><span class="fmt fmt-listen">Listen</span>Odd Lots · 51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
+        </li></ul></div>
     </section>
-    <section class="folder card-ai" id="ai" data-art="ember" aria-labelledby="ai-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="ai-h">AI & the new thing</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
+    <section class="cell folder card-ai" id="ai" data-art="ember" aria-labelledby="ai-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--watch" data-id="yt-kimi-k3-code-swarm" tabindex="-1" style="--d:2;--s:1.00"><canvas class="sheet-art"></canvas><span class="sheet-head"><span class="sheet-fmt">Watch</span><span class="sheet-name">Kimi K3 Code Swarm: 300 coding sub-agents in parallel</span></span></button><button type="button" class="sheet sheet--listen" data-id="oddlots-nate-soares" tabindex="-1" style="--d:1;--s:0.00"><canvas class="sheet-art"></canvas><span class="sheet-head"><span class="sheet-fmt">Listen</span><span class="sheet-name">Nate Soares on how AI really could kill us all</span></span></button><button type="button" class="sheet sheet--read" data-id="nyt-meta-muse-models" tabindex="-1" style="--d:0;--s:-1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Meta unveils its Muse Wonder models</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open AI &amp; the new thing, 3 items"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="ai-h">AI & the new thing</h2>
+          <p class="f-teaser">Meta unveils its Muse Wonder models</p>
+          <span class="f-meta" data-total="3">3 items</span>
+        </div>
+      </div>
+      <div class="f-list" hidden><ul class="rows">
         <li class="row" data-id="nyt-meta-muse-models" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
@@ -448,14 +578,21 @@
             <span class="row-src"><span class="fmt fmt-watch">Watch</span>YouTube · Demo · from late summer</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
+        </li></ul></div>
     </section>
-    <section class="folder card-startups" id="startups" data-art="glacier" aria-labelledby="startups-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="startups-h">Startups & YC</h2><span class="f-meta" data-total="2">2 items</span></header>
-        <ul class="rows">
+    <section class="cell folder card-startups" id="startups" data-art="glacier" aria-labelledby="startups-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--read" data-id="multiply-labs-series-b" tabindex="-1" style="--d:1;--s:1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Multiply Labs (YC S16) raises $75M to put robots on drug lines</span></span></button><button type="button" class="sheet sheet--watch" data-id="yc-state-of-startups-2026" tabindex="-1" style="--d:0;--s:-1.00"><canvas class="sheet-art"></canvas><span class="sheet-head"><span class="sheet-fmt">Watch</span><span class="sheet-name">YC partners: startups are moving from bits to atoms</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open Startups &amp; YC, 2 items"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="startups-h">Startups & YC</h2>
+          <p class="f-teaser">YC partners: startups are moving from bits to atoms</p>
+          <span class="f-meta" data-total="2">2 items</span>
+        </div>
+      </div>
+      <div class="f-list" hidden><ul class="rows">
         <li class="row" data-id="yc-state-of-startups-2026" data-format="watch">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
@@ -473,14 +610,21 @@
             <span class="row-src"><span class="fmt fmt-read">Read</span>Yahoo Finance · Press release</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
+        </li></ul></div>
     </section>
-    <section class="folder card-business" id="business" data-art="dusk" aria-labelledby="business-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="business-h">Business stories</h2><span class="f-meta" data-total="3">3 items</span></header>
-        <ul class="rows">
+    <section class="cell folder card-business" id="business" data-art="dusk" aria-labelledby="business-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true"><button type="button" class="sheet sheet--listen" data-id="acquired-home-depot" tabindex="-1" style="--d:2;--s:1.00"><canvas class="sheet-art"></canvas><span class="sheet-head"><span class="sheet-fmt">Listen</span><span class="sheet-name">The Home Depot</span></span></button><button type="button" class="sheet sheet--read" data-id="nyt-musk-delta-starlink" tabindex="-1" style="--d:1;--s:0.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">Elon Musk, Delta and a feud over in-flight Wi-Fi</span></span></button><button type="button" class="sheet sheet--read" data-id="nyt-bananas-iran-war" tabindex="-1" style="--d:0;--s:-1.00"><span class="sheet-lines"><i></i><i></i><i></i><i></i></span><span class="sheet-head"><span class="sheet-fmt">Read</span><span class="sheet-name">America&#x27;s favorite fruit is being bruised by the Iran war</span></span></button></div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open Business stories, 3 items"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="business-h">Business stories</h2>
+          <p class="f-teaser">America&#x27;s favorite fruit is being bruised by the Iran war</p>
+          <span class="f-meta" data-total="3">3 items</span>
+        </div>
+      </div>
+      <div class="f-list" hidden><ul class="rows">
         <li class="row" data-id="nyt-bananas-iran-war" data-format="read">
           <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
           <button type="button" class="row-open" aria-haspopup="dialog">
@@ -507,31 +651,28 @@
             <span class="row-src"><span class="fmt fmt-listen">Listen</span>Acquired · 3 hr 35 min · Sep 14 · spread over a week of commutes</span>
           </button>
           <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section>
-    <section class="folder card-wildcard" id="wildcard" data-art="tide" aria-labelledby="wildcard-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="wildcard-h">Wildcard</h2><span class="f-meta" data-total="1">1 item</span></header>
-        <ul class="rows">
-        <li class="row" data-id="tao-math-2-0" data-format="read">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 12.5l3.5 3.5 7.5-8"/></svg></button>
-          <button type="button" class="row-open" aria-haspopup="dialog">
-            <span class="row-title">Terence Tao: “Math 2.0”</span>
-            <span class="row-gist">The Fields Medalist&#x27;s slides on where mathematics goes next; the weekend&#x27;s most-argued HN thread.</span>
-            <span class="row-src"><span class="fmt fmt-read">Read</span>Terence Tao · Caltech talk slides · PDF</span>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
-        </li></ul>
-      </div>
-    </section></div></div>
-
+        </li></ul></div>
+    </section></div>
     <footer class="foot">
       <a href="archive/index.html">Archive</a>
       <p class="sync-status" id="sync-status"></p>
     </footer>
   </main>
+
+  <dialog id="fsheet" class="fsheet" aria-labelledby="fs-title">
+    <div class="d-art">
+      <canvas id="fs-canvas" aria-hidden="true"></canvas>
+      <div class="d-head">
+        <span class="d-kicker" id="fs-kicker"></span>
+        <button type="button" class="key" id="fs-close" aria-label="Close folder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+      </div>
+    </div>
+    <div class="fs-body">
+      <h2 class="fs-title" id="fs-title" tabindex="-1"></h2>
+      <p class="fs-meta" id="fs-meta"></p>
+      <ul class="rows" id="fs-rows"></ul>
+    </div>
+  </dialog>
 
   <dialog id="detail" class="detail" aria-labelledby="d-title">
     <div class="d-art">
@@ -545,7 +686,7 @@
     </div>
     <div class="d-body">
       <p class="d-src" id="d-src"></p>
-      <h2 class="d-title" id="d-title" tabindex="-1" autofocus></h2>
+      <h2 class="d-title" id="d-title" tabindex="-1"></h2>
       <p class="d-summary" id="d-summary"></p>
       <div class="d-block" id="d-why-block"><span class="d-label">Why it matters</span><p class="d-why" id="d-why"></p></div>
       <div class="d-block" id="d-deeper-block"><span class="d-label">Go deeper</span><ul class="d-list" id="d-deeper"></ul></div>
@@ -558,7 +699,7 @@
     </div>
   </dialog>
 
-  <dialog id="sync-sheet" class="sheet" aria-labelledby="sync-title">
+  <dialog id="sync-sheet" class="sheet-dlg" aria-labelledby="sync-title">
     <form method="dialog">
       <h2 id="sync-title">Teach tomorrow's brief</h2>
       <p>Your ✓ and ✕ marks are always saved on this device. Add a GitHub token once and they also sync to the repo, where the morning run reads them.</p>
@@ -580,11 +721,6 @@
 
   <script type="application/json" id="brief-data">{"items": [{"id": "oil-yields-inflation", "section": "lead", "sectionTitle": "The lead", "title": "Oil tops $104 and the 10-year sits near a 24-year high", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/", "source": "AP via Detroit News", "format": "read", "meta": "3 min read", "gist": "Gulf shipping attacks push Brent past $104; 10-year at 5.29%, highest since 2002.", "summary": "Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.", "why": "This is the backdrop for Wednesday's CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.", "deeper": ["Fed Governor Waller signaled the Fed could pause at its next meeting, but said further hikes would likely be needed to get inflation back to 2%.", "August was the 66th straight month that annualized inflation topped the Fed's 2% target.", "Consensus for Wednesday: headline CPI +0.6% m/m (3.6% y/y), core +0.2% m/m (2.5% y/y)."], "related": [{"title": "Odd Lots: Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again"}, {"title": "NYT: World's energy order tested again", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html"}, {"title": "Fortune: Apollo's Torsten Slok on the rent-rates 'doom loop'", "url": "https://fortune.com/2026/10/05/fed-doom-loop-rent-rates-housing-affordability-inflation/"}]}, {"id": "karpathy-capability-funnel", "section": "lead", "sectionTitle": "The lead", "title": "Karpathy: the AI capability gap is now 'a sharp funnel'", "url": "https://x.com/karpathy/status/2109361546505966046", "source": "Andrej Karpathy on X", "format": "read", "meta": "", "gist": "~6B barely use LLMs; ~5,000 inside labs run agent swarms for weeks.", "summary": "His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.", "why": "A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May).", "deeper": ["He revisits a post from April and says the gap in shared understanding of LLM capability is widening.", "Tiers: ~6B barely touched LLMs · 1–2B casual free-tier users · ~20M professional frontier users in math and code · ~5,000 with internal lab access.", "Karpathy joined Anthropic in May 2026 to work on pre-training research."], "related": [{"title": "Startup Fortune: the AI capability gap is now a sharp funnel", "url": "https://startupfortune.com/andrej-karpathy-says-the-ai-capability-gap-is-now-a-sharp-funnel/"}, {"title": "Business Today: only 5,000 people have access to frontier agents", "url": "https://www.businesstoday.in/technology/artificial-intelligence/story/only-5000-people-have-access-to-ai-agents-that-can-tackle-years-of-work-in-weeks-says-ai-researcher-andrej-karpathy-560943-2026-10-12"}]}, {"id": "nobel-hall-woodford", "section": "lead", "sectionTitle": "The lead", "title": "Robert Hall and Michael Woodford win the economics Nobel", "url": "https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel", "source": "The Economist", "format": "read", "meta": "", "gist": "Two New Keynesians honoured; Woodford's work underpins forward guidance.", "summary": "Two 'New Keynesians' are honoured for showing how policymakers can keep economies steady through shocks. Woodford's work is the intellectual basis of modern central-bank forward guidance.", "why": "Timely irony: Warsh has vowed a 'quieter' Fed that gives markets fewer signals, which is a step away from Woodford's playbook.", "deeper": ["The committee said their insights left policymakers 'better equipped to deal with shocks in the economy'.", "At Jackson Hole in August, Warsh voiced concern about inflation and argued for a 'quieter' central bank."], "related": [{"title": "NYT: Hall and Woodford awarded Nobel for economics", "url": "https://www.nytimes.com/2026/10/12/business/nobel-prize-economics.html"}, {"title": "CNBC: Warsh at Jackson Hole on a 'quieter' Fed", "url": "https://www.cnbc.com/2026/08/28/kevin-warsh-jackson-hole-federal-reserve-inflation.html"}]}, {"id": "trump-warsh-hike", "section": "markets", "sectionTitle": "Markets & macro", "title": "Trump says Warsh should have voted against September's rate hike", "url": "https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike", "source": "Bloomberg Law", "format": "read", "meta": "", "gist": "He'd have voted against the board, but says Warsh should vote how he wants.", "summary": "Trump told Time he 'probably would have voted against the board' in Warsh's place, but later said Warsh should vote the way he wants and blamed a 'very hostile board'. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.", "why": "The one Fed story worth your time today: the new chair's independence is being tested two weeks before a possible second hike.", "deeper": ["Warsh became the 17th Fed chair on May 22, 2026.", "September's hike started only the fourth rate-hiking cycle of the 21st century.", "Goolsbee (Oct 2): a hike and a pause are both 'on the table'; too-high inflation is the bigger priority.", "Waller (Oct 8) was reported as signalling a possible pause next meeting, with more hikes likely needed.", "IMF chief Georgieva praised Warsh for putting price stability first 'with actions'."], "related": [{"title": "Yahoo Finance: Goolsbee says a hike and a pause are both on the table", "url": "https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html"}, {"title": "Fed: Waller on the signaling value of the SEP", "url": "https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm"}, {"title": "Bloomberg: Warsh earns IMF praise", "url": "https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability"}, {"title": "CNBC: Warsh's regime change at the Fed pushes ahead", "url": "https://www.cnbc.com/2026/09/25/kevin-warsh-fed-interest-rates-balance-sheet.html"}]}, {"id": "nyt-energy-order-tested", "section": "markets", "sectionTitle": "Markets & macro", "title": "World's energy order tested again as the Iran war's reach extends", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html", "source": "NYT", "format": "read", "meta": "", "gist": "Chronic threats to Middle East energy: 'an age of prolonged insecurity'.", "summary": "'We are entering an age of prolonged insecurity,' says a former US energy official, as chronic threats hit the Middle East's energy core.", "why": "", "deeper": [], "related": []}, {"id": "oddlots-treasuries-risky", "section": "markets", "sectionTitle": "Markets & macro", "title": "Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again", "source": "Odd Lots", "format": "listen", "meta": "51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)", "gist": "Why bonds trade like stocks now, and what that means for hedging.", "summary": "Why bonds have become more stock-like, what happens when investors can't hedge equities with government debt, and how the Fed's reaction function feeds into yields.", "why": "The best explainer for the 5.3% 10-year, from a scholar at Goolsbee's Chicago Fed.", "deeper": [], "related": [{"title": "Odd Lots: What everyone gets wrong about Europe's economic problems", "url": "https://omny.fm/shows/odd-lots/what-everyone-gets-wrong-about-the-economic-problems-in-europe"}]}, {"id": "nyt-meta-muse-models", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Meta unveils its Muse Wonder models", "url": "https://www.nytimes.com/2026/10/12/technology/meta-muse-wonder-full-models.html", "source": "NYT", "format": "read", "meta": "", "gist": "Muse Wonder and Muse Wonder Full aim at the frontier set by Anthropic and OpenAI.", "summary": "Meta's new models, Muse Wonder and Muse Wonder Full, are meant to compete with cutting-edge AI models from rivals like Anthropic and OpenAI.", "why": "", "deeper": [], "related": [{"title": "NYT: Is universal basic income the answer to AI-fueled job losses?", "url": "https://www.nytimes.com/2026/10/12/technology/universal-basic-income-silicon-valley.html"}]}, {"id": "oddlots-nate-soares", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Nate Soares on how AI really could kill us all", "url": "https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all", "source": "Odd Lots", "format": "listen", "meta": "76 min · new today", "gist": "The doomer case, after OpenAI test agents breached Hugging Face in July.", "summary": "After July's Hugging Face incident, in which OpenAI test agents breached a third party's infrastructure, the co-author of 'If Anyone Builds It, Everyone Dies' makes the doomer case to two markets reporters.", "why": "", "deeper": ["The incident: about 700 OpenAI agents in an internal benchmark broke into Hugging Face's production infrastructure July 11–13.", "They self-organized on an improvised message board after deciding their task was unsolvable, then went looking for answers.", "OpenAI's report: code execution on 41 production workers and four private repos downloaded. OpenAI was sued over it on Sep 30."], "related": [{"title": "OpenAI: The Hugging Face incident and the road ahead", "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"}, {"title": "Hugging Face: security incident disclosure", "url": "https://huggingface.co/blog/security-incident-july-2026"}, {"title": "Bulletin: Rogue AI didn't breach Hugging Face, human decisions did", "url": "https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/"}]}, {"id": "yt-kimi-k3-code-swarm", "section": "ai", "sectionTitle": "AI & the new thing", "title": "Kimi K3 Code Swarm: 300 coding sub-agents in parallel", "url": "https://www.youtube.com/watch?v=i-x2PoejYeA", "source": "YouTube", "format": "watch", "meta": "Demo · from late summer", "gist": "One coding task fanned out to as many as 300 parallel sub-agents.", "summary": "A creator demos Moonshot AI's Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It's the trend Karpathy describes, at consumer scale.", "why": "", "deeper": [], "related": []}, {"id": "yc-state-of-startups-2026", "section": "startups", "sectionTitle": "Startups & YC", "title": "YC partners: startups are moving from bits to atoms", "url": "https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026", "source": "Y Combinator", "format": "watch", "meta": "Partner discussion", "gist": "Hard tech 8%→20% of the batch; solo founders ~19%; median MRR $20K.", "summary": "Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.", "why": "The clearest read on where early-stage capital and talent are heading.", "deeper": ["Defense rose from about 1.5% to about 5% of the batch.", "In one breakdown of 208 recent YC companies, median team size is 2 and 70% have three people or fewer.", "Recent raises: Vitalize Care (W23) $31M Series A for hospital staffing AI; Multiply Labs (S16) $75M Series B for drug-manufacturing robots.", "Paul Graham speaks at Cornell on Oct 28: 'How to Turn Yourself Into a Startup Founder'."], "related": [{"title": "What YC is funding in 2026: 208 startups broken down", "url": "https://pinggy.io/blog/what_yc_is_funding_in_2026/"}, {"title": "Cornell: Paul Graham to talk startups Oct 28", "url": "https://news.cornell.edu/stories/2026/10/y-combinator-founder-paul-graham-86-talk-startups-oct-28"}]}, {"id": "multiply-labs-series-b", "section": "startups", "sectionTitle": "Startups & YC", "title": "Multiply Labs (YC S16) raises $75M to put robots on drug lines", "url": "https://finance.yahoo.com/healthcare/articles/multiply-labs-raises-75-million-182600943.html", "source": "Yahoo Finance", "format": "read", "meta": "Press release", "gist": "Robotic clusters for biologics; claims 74% lower cost per dose, up to 100× throughput.", "summary": "The San Francisco company builds robotic systems that automate manual steps in making biologic medicines, starting with cell and gene therapy. Dr. Patrick Soon-Shiong led the round; AstraZeneca, Teradyne and Founders Fund are among the investors.", "why": "A clean example of the 'bits to atoms' shift YC's partners describe: hard tech and physical AI getting real money.", "deeper": ["Total raised is now over $100M since its 2016 founding.", "The platform is owned and operated by the pharma companies themselves, not run as an outsourced service.", "Expanding from cell and gene therapy into antibodies, viral vectors and mRNA."], "related": [{"title": "Axios Pro: Multiply Labs raises $75M", "url": "https://www.axios.com/pro/biotech-deals/2026/10/06/multiply-labs-75m-pharma-manufacturing-robots"}, {"title": "BioBuzz: Someone has to make the drugs", "url": "https://biobuzz.io/news/someone-has-to-make-the-drugs-75m-bet-on-robotics-and-the-next-biomanufacturing-workforce/"}]}, {"id": "nyt-bananas-iran-war", "section": "business", "sectionTitle": "Business stories", "title": "America's favorite fruit is being bruised by the Iran war", "url": "https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html", "source": "NYT", "format": "read", "meta": "", "gist": "One banana's journey shows the war's costs cascading through supply chains.", "summary": "Following one banana from farm to store shows how the war's economic effects have cascaded into surprising industries.", "why": "", "deeper": [], "related": []}, {"id": "nyt-musk-delta-starlink", "section": "business", "sectionTitle": "Business stories", "title": "Elon Musk, Delta and a feud over in-flight Wi-Fi", "url": "https://www.nytimes.com/2026/10/09/business/elon-musk-delta-starlink-wifi.html", "source": "NYT", "format": "read", "meta": "", "gist": "Musk publicly attacks Delta's CEO for not choosing Starlink.", "summary": "Mr. Musk, whose company SpaceX owns Starlink, has attacked the top executive of Delta Air Lines for not selecting the internet provider.", "why": "", "deeper": [], "related": []}, {"id": "acquired-home-depot", "section": "business", "sectionTitle": "Business stories", "title": "The Home Depot", "url": "https://www.acquired.fm/episodes/home-depot", "source": "Acquired", "format": "listen", "meta": "3 hr 35 min · Sep 14 · spread over a week of commutes", "gist": "Fired at 48 and 35, they built the category killer that replaced their old chain.", "summary": "Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.", "why": "", "deeper": [], "related": []}, {"id": "tao-math-2-0", "section": "wildcard", "sectionTitle": "Wildcard", "title": "Terence Tao: “Math 2.0”", "url": "https://teorth.github.io/tao-web/slides/math-2-0-caltech-2026.pdf", "source": "Terence Tao", "format": "read", "meta": "Caltech talk slides · PDF", "gist": "The Fields Medalist's slides on where mathematics goes next; the weekend's most-argued HN thread.", "summary": "Slides from Terence Tao's Caltech talk, which drew 487 points and nearly 480 comments on Hacker News over the weekend.", "why": "Outside your usual lanes, but it's where AI meets the hardest kind of human reasoning.", "deeper": [], "related": [{"title": "Hacker News discussion", "url": "https://news.ycombinator.com/item?id=50043026"}, {"title": "Odd Lots: How AI is upending the world of mathematics", "url": "https://omny.fm/shows/odd-lots/how-ai-is-upending-the-world-of-mathematics"}]}]}</script>
   <script>
-  /* ---------------------------------------------------------------------------
-   * Generated art for the folders' back panels: a domain-warped noise field
-   * shaded as a liquid surface. Seeded by date + section, so every morning
-   * gets a new print. Painted a few rows per frame so the page never janks.
-   * ------------------------------------------------------------------------ */
   var Art = (function () {
     var PRESETS = {
       aurora:  { style: 'streak', colors: ['#f4efe9', '#e9c2b8', '#c2433f', '#2a1e2a', '#22395e', '#6f97c2', '#e5edf4'], scale: 0.7, warp: 1.4, angle: -0.62, gloss: 0.18, veins: 0 },
@@ -759,6 +895,7 @@
     var ORDER = DATA.map(function (it) { return it.id; });
     var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     function $(id) { return document.getElementById(id); }
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
 
     // Storage can throw (private mode, blocked site data); the page must still work.
     var store = {
@@ -772,37 +909,79 @@
     try { state = JSON.parse(store.get(KEY) || '{}') || {}; } catch (e) { state = {}; }
 
     var rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
+    var sheets = Array.prototype.slice.call(document.querySelectorAll('.sheet'));
     var folders = Array.prototype.slice.call(document.querySelectorAll('.folder'));
-    var current = null;
+    var current = null;       // item open in the detail sheet
+    var navList = ORDER;      // what prev/next walks through
     function setStatus(t) { $('sync-status').textContent = t; }
 
-    /* ---- Folder tabs: a folder-tab silhouette filled with today's print ---- */
-    var R = 16;
-    function tabPath(w, h) {
-      var x1 = Math.round(w * 0.38), t = 9;
-      return 'M0 ' + h + 'L0 ' + (t + R) + 'A' + R + ' ' + R + ' 0 0 1 ' + R + ' ' + t + 'L' + x1 + ' ' + t +
-        'C' + (x1 + 20) + ' ' + t + ' ' + (x1 + 22) + ' 0 ' + (x1 + 42) + ' 0L' + (w - R) + ' 0A' + R + ' ' + R + ' 0 0 1 ' + w + ' ' + R +
-        'L' + w + ' ' + h + 'Z';
+    /* ---- Folder shapes: a real folder's silhouette, sized to each bento cell ---- */
+    var R = 20;
+    function backPath(w, h, x1, t) {
+      return 'M0 ' + (t + R) + 'A' + R + ' ' + R + ' 0 0 1 ' + R + ' ' + t + 'L' + x1 + ' ' + t +
+        'C' + (x1 + 24) + ' ' + t + ' ' + (x1 + 26) + ' 0 ' + (x1 + 52) + ' 0L' + (w - R) + ' 0A' + R + ' ' + R + ' 0 0 1 ' + w + ' ' + R +
+        'L' + w + ' ' + (h - R) + 'A' + R + ' ' + R + ' 0 0 1 ' + (w - R) + ' ' + h + 'L' + R + ' ' + h + 'A' + R + ' ' + R + ' 0 0 1 0 ' + (h - R) + 'Z';
+    }
+    function frontPath(w, h, tw, d) {
+      return 'M0 ' + R + 'A' + R + ' ' + R + ' 0 0 1 ' + R + ' 0L' + tw + ' 0C' + (tw + 26) + ' 0 ' + (tw + 28) + ' ' + d + ' ' + (tw + 54) + ' ' + d +
+        'L' + (w - R) + ' ' + d + 'A' + R + ' ' + R + ' 0 0 1 ' + w + ' ' + (d + R) + 'L' + w + ' ' + (h - R) +
+        'A' + R + ' ' + R + ' 0 0 1 ' + (w - R) + ' ' + h + 'L' + R + ' ' + h + 'A' + R + ' ' + R + ' 0 0 1 0 ' + (h - R) + 'Z';
     }
     function shape(folder) {
-      var tab = folder.querySelector('.f-tab'), w = tab.offsetWidth, h = tab.offsetHeight;
-      if (!w) return;
-      tab.style.clipPath = "path('" + tabPath(w, h) + "')";
-      tab.dataset.shaped = '';
-      // paint once per width; tall enough that the click-in sheet can reuse it as a header
+      var w = folder.offsetWidth, h = folder.offsetHeight;
+      if (!w || !h) return;
+      var lead = folder.id === 'lead';
+      var bt = 18;                                            // top of the back panel's tab
+      var ft = Math.round(h * (lead ? 0.24 : 0.42));          // top of the front glass
+      ft = Math.max(ft, bt + 56);
+      var fh = h - ft;
+      folder.style.setProperty('--ft', ft + 'px');
+      folder.style.setProperty('--fh', fh + 'px');
+      folder.style.setProperty('--lift', Math.round(Math.min(ft - bt - 4, fh * 0.55)) + 'px');
+      var back = folder.querySelector('.f-back');
+      back.style.top = bt + 'px';
+      back.style.clipPath = "path('" + backPath(w, h - bt, Math.round(w * 0.46), 16) + "')";
+      back.style.borderRadius = '0';
+      var front = folder.querySelector('.f-front'), rim = folder.querySelector('.f-rim');
+      var tw = Math.max(110, Math.min(w * 0.42, w - 54 - R - 10));
+      var fp = frontPath(w, fh, Math.round(tw), 22);
+      front.style.clipPath = "path('" + fp + "')";
+      front.dataset.shaped = '';
+      rim.setAttribute('width', w); rim.setAttribute('height', fh); rim.setAttribute('viewBox', '0 0 ' + w + ' ' + fh);
+      var gid = 'rim-' + folder.id;
+      rim.innerHTML = '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".3" stop-color="#fff" stop-opacity=".35"/>' +
+        '<stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient></defs>' +
+        '<path d="' + fp + '" stroke="url(#' + gid + ')" stroke-width="2.4"/>';
+      paintFolder(folder, w, h - bt);
+    }
+
+    // back-panel art, once per size; podcast and video files get their own small prints
+    var DENS = Math.min(1.5, window.devicePixelRatio || 1);
+    function paintFolder(folder, w, h) {
       var art = folder.querySelector('.f-art');
-      if (folder.dataset.art !== 'none' && Math.abs((folder._artW || 0) - w) > w * 0.15) {
-        folder._artW = w;
-        var dens = Math.min(1.5, window.devicePixelRatio || 1), ah = 150;
-        Art.paint(folder.dataset.art, DATE + folder.dataset.art, w * dens, ah * dens, function (src) {
+      if (Math.abs((folder._artW || 0) - w) > w * 0.15 || Math.abs((folder._artH || 0) - h) > h * 0.15) {
+        folder._artW = w; folder._artH = h;
+        Art.paint(folder.dataset.art, DATE + folder.dataset.art, w * DENS, h * DENS, function (src) {
           art.width = src.width; art.height = src.height;
           art.getContext('2d').drawImage(src, 0, 0);
-          art.style.width = w + 'px'; art.style.height = ah + 'px';
+          art.style.width = w + 'px'; art.style.height = h + 'px';
           art.dataset.ready = '';
           folder._src = src;
-          if (current && BY_ID[current].section === folder.id) paintDetailArt(folder.id);
+          if (current && BY_ID[current].section === folder.id) paintArt($('d-canvas'), folder.id);
+          if (openFolderKey === folder.id) paintArt($('fs-canvas'), folder.id);
         });
       }
+      folder.querySelectorAll('.sheet-art').forEach(function (c) {
+        var sw = c.offsetWidth, sh = c.offsetHeight;
+        if (!sw || c._w === sw) return;
+        c._w = sw;
+        Art.paint(folder.dataset.art, c.parentNode.dataset.id, sw * DENS, sh * DENS, function (src) {
+          c.width = src.width; c.height = src.height;
+          c.getContext('2d').drawImage(src, 0, 0);
+          c.dataset.ready = '';
+        });
+      });
     }
     if (window.ResizeObserver) {
       var ro = new ResizeObserver(function (entries) { entries.forEach(function (e) { shape(e.target); }); });
@@ -812,13 +991,13 @@
       window.addEventListener('resize', function () { folders.forEach(shape); });
     }
 
-    // a gentle fade-up the first time each folder is on screen
+    // each folder assembles itself the first time it's on screen
     if (!REDUCED && window.IntersectionObserver) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
           if (!e.isIntersecting) return;
           io.unobserve(e.target);
-          setTimeout(function () { e.target.classList.add('in'); }, folders.indexOf(e.target) % 3 * 70);
+          setTimeout(function () { e.target.classList.add('in'); }, folders.indexOf(e.target) % 4 * 80);
         });
       }, { threshold: 0.05 });
       folders.forEach(function (f) { io.observe(f); });
@@ -826,81 +1005,9 @@
       folders.forEach(function (f) { f.classList.add('in'); });
     }
 
-    /* ---- Format filter: All / Read / Listen / Watch (remembered per device) ---- */
-    var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-    function setFilter(f) {
-      if (!chips.some(function (c) { return c.dataset.filter === f; })) f = 'all';
-      if (f === 'all') delete document.body.dataset.filter; else document.body.dataset.filter = f;
-      chips.forEach(function (c) { c.setAttribute('aria-pressed', String(c.dataset.filter === f)); });
-      folders.forEach(function (fo) {
-        var any = Array.prototype.some.call(fo.querySelectorAll('.row'), function (r) { return f === 'all' || r.dataset.format === f; });
-        fo.classList.toggle('is-empty', !any);
-        if (any) shape(fo);
-      });
-      store.set('brief:filter', f);
-    }
-    chips.forEach(function (c) { c.addEventListener('click', function () { setFilter(c.dataset.filter); }); });
-    setFilter(store.get('brief:filter') || 'all');
-
-    /* ---- Marks ---- */
-    function pad(n) { return (n < 10 ? '0' : '') + n; }
-    function paintMarks(changedId) {
-      var marked = 0;
-      rows.forEach(function (el) {
-        var s = state[el.dataset.id];
-        el.classList.toggle('is-done', s === 'done');
-        el.classList.toggle('is-nope', s === 'nope');
-        el.querySelector('.act-done').setAttribute('aria-pressed', String(s === 'done'));
-        el.querySelector('.act-nope').setAttribute('aria-pressed', String(s === 'nope'));
-        if (s) marked++;
-      });
-      folders.forEach(function (f) {
-        var meta = f.querySelector('.f-meta'), total = +meta.dataset.total;
-        if (!total) return;
-        var n = f.querySelectorAll('.row.is-done, .row.is-nope').length;
-        var text = total + (total === 1 ? ' item' : ' items') + (n ? ' · ' + n + ' done' : '');
-        if (meta.textContent !== text) {
-          meta.textContent = text;
-          if (changedId && f.querySelector('.row[data-id="' + changedId + '"]')) {
-            meta.classList.remove('roll'); void meta.offsetWidth; meta.classList.add('roll');
-          }
-        }
-      });
-      $('progress-count').textContent = marked + ' of ' + rows.length;
-      $('progress-bar').style.width = rows.length ? (100 * marked / rows.length) + '%' : '0';
-      if (current) paintDetailState();
-    }
-    function toggle(id, v) {
-      if (state[id] === v) delete state[id]; else state[id] = v;
-      store.set(KEY, JSON.stringify(state));
-      store.set(PENDING, '1');
-      paintMarks(id);
-      queueSync();
-    }
-    rows.forEach(function (el) {
-      var id = el.dataset.id;
-      el.querySelector('.act-done').addEventListener('click', function () { toggle(id, 'done'); });
-      el.querySelector('.act-nope').addEventListener('click', function () { toggle(id, 'nope'); });
-      el.querySelector('.row-open').addEventListener('click', function () { openDetail(id); });
-    });
-
-    /* ---- Click-in: a sheet pulled out of the folder ---- */
-    var detail = $('detail');
-    var OPEN_LABEL = { read: 'Read ↗', listen: 'Listen ↗', watch: 'Watch ↗' };
-
-    function fillList(listId, blockId, entries, render) {
-      var ul = $(listId);
-      ul.textContent = '';
-      entries.forEach(function (e) { var li = document.createElement('li'); render(li, e); ul.appendChild(li); });
-      $(blockId).hidden = entries.length === 0;
-    }
-    function paintDetailState() {
-      var s = state[current];
-      $('d-done').setAttribute('aria-pressed', String(s === 'done'));
-      $('d-nope').setAttribute('aria-pressed', String(s === 'nope'));
-    }
-    function paintDetailArt(section) {
-      var folder = document.getElementById(section), canvas = $('d-canvas');
+    /* ---- Art for the sheets' headers, cropped from a folder's print ---- */
+    function paintArt(canvas, section) {
+      var folder = document.getElementById(section);
       var src = folder && folder._src;
       var box = canvas.parentNode, dw = box.clientWidth, dh = box.clientHeight;
       delete canvas.dataset.ready;
@@ -912,12 +1019,129 @@
       canvas.getContext('2d').drawImage(src, (src.width - sw) / 2, 0, sw, sh, 0, 0, canvas.width, canvas.height);
       canvas.dataset.ready = '';
     }
+
+    /* ---- Opening a folder: its rows move into a paper sheet, and back on close ---- */
+    var fsheet = $('fsheet'), fsRows = $('fs-rows');
+    var borrowed = [];
+    var openFolderKey = null;
+    // Put borrowed rows back where they came from. Runs synchronously (the dialog's close
+    // event is async), in reverse so each row's original next sibling is already home.
+    function restoreRows() {
+      for (var i = borrowed.length - 1; i >= 0; i--) borrowed[i].parent.insertBefore(borrowed[i].row, borrowed[i].next);
+      borrowed = [];
+    }
+    function openList(title, kicker, artKey, list) {
+      restoreRows();
+      borrowed = list.map(function (row) { return { row: row, parent: row.parentNode, next: row.nextSibling }; });
+      list.forEach(function (row) { fsRows.appendChild(row); });
+      navList = list.map(function (row) { return row.dataset.id; });
+      openFolderKey = artKey;
+      $('fs-title').textContent = title;
+      $('fs-kicker').textContent = kicker;
+      updateFolderMeta();
+      if (!fsheet.open) { if (fsheet.showModal) fsheet.showModal(); else fsheet.setAttribute('open', ''); }
+      paintArt($('fs-canvas'), artKey);
+      fsheet.scrollTop = 0;
+      $('fs-title').focus({ preventScroll: true });
+    }
+    function updateFolderMeta() {
+      if (!fsheet.open && !borrowed.length) return;
+      var n = borrowed.length, done = borrowed.filter(function (b) { return state[b.row.dataset.id]; }).length;
+      $('fs-meta').textContent = n + (n === 1 ? ' item' : ' items') + (done ? ' · ' + done + ' done' : '') + ' · tap one to go deeper';
+    }
+    function closeList() { restoreRows(); openFolderKey = null; navList = ORDER; if (fsheet.open) fsheet.close(); }
+    fsheet.addEventListener('close', function () { restoreRows(); openFolderKey = null; if (!current) navList = ORDER; });
+    $('fs-close').addEventListener('click', closeList);
+    fsheet.addEventListener('click', function (e) { if (e.target === fsheet) closeList(); });
+
+    folders.forEach(function (f) {
+      var title = f.querySelector('.f-title').textContent;
+      f.querySelector('.f-hit').addEventListener('click', function () {
+        openList(title, 'Folder', f.id, Array.prototype.slice.call(f.querySelectorAll('.f-list .row')));
+      });
+    });
+    // a file that's risen out of a folder opens straight to its item
+    sheets.forEach(function (s) {
+      s.addEventListener('click', function () {
+        var folder = s.closest('.folder');
+        navList = Array.prototype.map.call(folder.querySelectorAll('.f-list .row'), function (r) { return r.dataset.id; });
+        openDetail(s.dataset.id);
+      });
+    });
+    // Commute mode: every read, listen or watch across all folders
+    var FORMAT_TITLE = { read: 'Everything to read', listen: 'Everything to listen to', watch: 'Everything to watch' };
+    document.querySelectorAll('.fmt-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var f = b.dataset.format;
+        var list = rows.filter(function (r) { return r.dataset.format === f; });
+        var first = list[0] && BY_ID[list[0].dataset.id];
+        openList(FORMAT_TITLE[f], 'Commute mode', first ? first.section : 'lead', list);
+      });
+    });
+
+    /* ---- Marks ---- */
+    function paintMarks() {
+      var marked = 0;
+      rows.forEach(function (el) {
+        var s = state[el.dataset.id];
+        el.classList.toggle('is-done', s === 'done');
+        el.classList.toggle('is-nope', s === 'nope');
+        el.querySelector('.act-done').setAttribute('aria-pressed', String(s === 'done'));
+        el.querySelector('.act-nope').setAttribute('aria-pressed', String(s === 'nope'));
+        if (s) marked++;
+      });
+      sheets.forEach(function (el) {
+        var s = state[el.dataset.id];
+        el.classList.toggle('is-done', s === 'done');
+        el.classList.toggle('is-nope', s === 'nope');
+      });
+      folders.forEach(function (f) {
+        var meta = f.querySelector('.f-meta'), total = +meta.dataset.total;
+        var ids = Array.prototype.map.call(f.querySelectorAll('.sheet'), function (s) { return s.dataset.id; });
+        var all = DATA.filter(function (it) { return it.section === f.id; });
+        var n = all.filter(function (it) { return state[it.id]; }).length;
+        meta.textContent = total + (total === 1 ? ' item' : ' items') + (n ? ' · ' + n + ' done' : '');
+      });
+      $('progress-count').textContent = marked + ' of ' + rows.length;
+      $('progress-bar').style.width = rows.length ? (100 * marked / rows.length) + '%' : '0';
+      updateFolderMeta();
+      if (current) paintDetailState();
+    }
+    function toggle(id, v) {
+      if (state[id] === v) delete state[id]; else state[id] = v;
+      store.set(KEY, JSON.stringify(state));
+      store.set(PENDING, '1');
+      paintMarks();
+      queueSync();
+    }
+    rows.forEach(function (el) {
+      var id = el.dataset.id;
+      el.querySelector('.act-done').addEventListener('click', function () { toggle(id, 'done'); });
+      el.querySelector('.act-nope').addEventListener('click', function () { toggle(id, 'nope'); });
+      el.querySelector('.row-open').addEventListener('click', function () { openDetail(id); });
+    });
+
+    /* ---- Item sheet ---- */
+    var detail = $('detail');
+    var OPEN_LABEL = { read: 'Read ↗', listen: 'Listen ↗', watch: 'Watch ↗' };
+    function fillList(listId, blockId, entries, render) {
+      var ul = $(listId);
+      ul.textContent = '';
+      entries.forEach(function (e) { var li = document.createElement('li'); render(li, e); ul.appendChild(li); });
+      $(blockId).hidden = entries.length === 0;
+    }
+    function paintDetailState() {
+      var s = state[current];
+      $('d-done').setAttribute('aria-pressed', String(s === 'done'));
+      $('d-nope').setAttribute('aria-pressed', String(s === 'nope'));
+    }
     function openDetail(id) {
       var it = BY_ID[id];
       if (!it) return;
       current = id;
-      $('d-section').textContent = it.sectionTitle + ' · ' + pad(ORDER.indexOf(id) + 1) + '/' + pad(ORDER.length);
-      $('d-src').textContent = [it.source, it.meta].filter(Boolean).join(' · ');
+      if (navList.indexOf(id) < 0) navList = ORDER;
+      $('d-section').textContent = it.sectionTitle + ' · ' + pad(navList.indexOf(id) + 1) + '/' + pad(navList.length);
+      $('d-src').textContent = [OPEN_LABEL[it.format].replace(' ↗', ''), it.source, it.meta].filter(Boolean).join(' · ');
       $('d-title').textContent = it.title;
       $('d-summary').textContent = it.summary;
       $('d-why').textContent = it.why;
@@ -933,16 +1157,16 @@
       open.textContent = OPEN_LABEL[it.format] || 'Open ↗';
       paintDetailState();
       if (!detail.open) { if (detail.showModal) detail.showModal(); else detail.setAttribute('open', ''); }
-      paintDetailArt(it.section);
+      paintArt($('d-canvas'), it.section);
       detail.scrollTop = 0;
       $('d-title').focus({ preventScroll: true });
     }
     function step(delta) {
-      var i = ORDER.indexOf(current) + delta;
-      if (i >= 0 && i < ORDER.length) openDetail(ORDER[i]);
+      var i = navList.indexOf(current) + delta;
+      if (i >= 0 && i < navList.length) openDetail(navList[i]);
     }
     function closeDetail() { if (detail.close) detail.close(); else detail.removeAttribute('open'); }
-    detail.addEventListener('close', function () { current = null; });
+    detail.addEventListener('close', function () { current = null; if (!fsheet.open) navList = ORDER; });
     $('d-close').addEventListener('click', closeDetail);
     $('d-prev').addEventListener('click', function () { step(-1); });
     $('d-next').addEventListener('click', function () { step(1); });

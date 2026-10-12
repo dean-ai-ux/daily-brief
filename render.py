@@ -123,15 +123,53 @@ def render_row(it, lead=False):
         </li>"""
 
 
-def render_card(key, title, body, count):
-    """A section as a folder: today's art on the tab strip, everything readable on solid paper."""
+MAX_SHEETS = 4
+
+
+def render_sheet(it, depth, slot):
+    """A file in the folder's pocket: rises out of the top on hover, opens the item on click."""
+    fmt = it.get("format", "read")
+    if fmt == "read":
+        face = '<span class="sheet-lines"><i></i><i></i><i></i><i></i></span>'
+    else:
+        face = '<canvas class="sheet-art"></canvas>'
+    return (
+        f'<button type="button" class="sheet sheet--{fmt}" data-id="{escape(it["id"], quote=True)}" tabindex="-1" style="--d:{depth};--s:{slot:.2f}">'
+        f'{face}<span class="sheet-head"><span class="sheet-fmt">{FORMATS[fmt]}</span>'
+        f'<span class="sheet-name">{escape(it["title"])}</span></span></button>'
+    )
+
+
+def render_folder(key, title, items):
+    """A section as a folder you can open: art on the back, files in the pocket, frosted front."""
+    n = len(items)
+    shown = items[:MAX_SHEETS]
+    # the first item sits at the front of the stack, nearest the glass
+    k = len(shown)
+    # fan position: -1 (left) … 1 (right); the front sheet sits in the middle-left
+    slots = [0.0] if k == 1 else [(i / (k - 1)) * 2 - 1 for i in range(k)]
+    sheets = "".join(render_sheet(it, depth, slots[depth]) for depth, it in reversed(list(enumerate(shown))))
+    if key == "lead":
+        teaser = '<ul class="f-heads">' + "".join(
+            f'<li><span class="f-head-title">{escape(it["title"])}</span><span class="f-head-gist">{escape(gist_of(it))}</span></li>'
+            for it in items) + "</ul>"
+    else:
+        teaser = f'<p class="f-teaser">{escape(items[0]["title"])}</p>'
+    rows = "".join(render_row(it, lead=(key == "lead")) for it in items)
     return f"""
-    <section class="folder card-{key}" id="{key}" data-art="{SECTION_ART[key]}" aria-labelledby="{key}-h">
-      <div class="f-tab" aria-hidden="true"><canvas class="f-art"></canvas></div>
-      <div class="f-card">
-        <header class="f-head"><h2 class="f-title" id="{key}-h">{title}</h2><span class="f-meta" data-total="{count}">{count} item{'s' if count != 1 else ''}</span></header>
-        {body}
+    <section class="cell folder card-{key}" id="{key}" data-art="{SECTION_ART[key]}" aria-labelledby="{key}-h">
+      <div class="f-back" aria-hidden="true"><canvas class="f-art"></canvas><div class="f-sheen"></div></div>
+      <div class="f-files" aria-hidden="true">{sheets}</div>
+      <div class="f-front">
+        <svg class="f-rim" aria-hidden="true"></svg>
+        <button type="button" class="f-hit" aria-haspopup="dialog" aria-label="Open {escape(title, quote=True)}, {n} item{'s' if n != 1 else ''}"></button>
+        <div class="f-label">
+          <h2 class="f-title" id="{key}-h">{title}</h2>
+          {teaser}
+          <span class="f-meta" data-total="{n}">{n} item{'s' if n != 1 else ''}</span>
+        </div>
       </div>
+      <div class="f-list" hidden><ul class="rows">{rows}</ul></div>
     </section>"""
 
 
@@ -143,39 +181,44 @@ def render_week(d):
         f'<li><span class="week-when">{escape(r["when"])}</span><span class="week-what">{escape(r["what"])}</span></li>'
         for r in rows
     )
-    return f'<section class="week" aria-labelledby="week-h"><h2 class="week-title" id="week-h">This week</h2><ul class="week-list">{lis}</ul></section>'
+    return f'<section class="cell cell-week" aria-labelledby="week-h"><h2 class="cell-label" id="week-h">This week</h2><ul class="week-list">{lis}</ul></section>'
 
 
-def render_filters(d):
+def render_formats(d):
     counts = {f: 0 for f in FORMATS}
     for sec in d["sections"]:
         for it in sec.get("items", []):
             counts[it.get("format", "read")] += 1
-    total = sum(counts.values())
-    chips = [f'<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>{total}</span></button>']
-    chips += [
-        f'<button type="button" class="chip" data-filter="{f}" aria-pressed="false">{label} <span>{counts[f]}</span></button>'
+    icons = {
+        "read": '<path d="M5 5.5h6a2 2 0 0 1 2 2V19a2 2 0 0 0-2-2H5zM19 5.5h-6a2 2 0 0 0-2 2V19a2 2 0 0 1 2-2h6z"/>',
+        "listen": '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13.5" width="4" height="6" rx="1.5"/><rect x="16.5" y="13.5" width="4" height="6" rx="1.5"/>',
+        "watch": '<rect x="3.5" y="5.5" width="17" height="13" rx="3"/><path d="M10.5 9.5v5l4-2.5z"/>',
+    }
+    btns = "".join(
+        f'<button type="button" class="fmt-btn fmt-btn--{f}" data-format="{f}" aria-haspopup="dialog">'
+        f'<svg viewBox="0 0 24 24" aria-hidden="true">{icons[f]}</svg><span class="fmt-label">{label}</span>'
+        f'<span class="fmt-count">{counts[f]}</span></button>'
         for f, label in FORMATS.items() if counts[f]
-    ]
-    return f'<div class="filters" role="group" aria-label="Show">{"".join(chips)}</div>'
+    )
+    return f'<div class="commute"><span class="commute-label">Commute mode</span><div class="fmt-btns">{btns}</div></div>'
 
 
 def render_grid(d):
-    """The lead across the top, then one folder per interest. Week strip and format filters above."""
+    """Bento: the morning's summary, numbers and week as small tiles; a folder per interest."""
     by_key = {s["key"]: s for s in d["sections"] if s.get("items")}
-    cards = {}
-    for key, title in SECTION_TITLES.items():
-        sec = by_key.get(key)
-        if sec:
-            rows = "".join(render_row(it, lead=(key == "lead")) for it in sec["items"])
-            cards[key] = render_card(key, title, f'<ul class="rows">{rows}</ul>', len(sec["items"]))
-    rest = [cards[k] for k in SECTION_TITLES if k != "lead" and k in cards]
-    lead = cards.get("lead", "")
-    n_lead = len(by_key["lead"]["items"]) if "lead" in by_key else 0
-    return (
-        render_week(d) + render_filters(d)
-        + f'<div class="board" style="--lead:{max(1, n_lead)}">{lead}<div class="interests">{"".join(rest)}</div></div>'
+    note = d.get("feedback_note", "")
+    lede = (
+        '<section class="cell cell-lede"><h2 class="cell-label">This morning</h2>'
+        f'<p class="lede">{escape(d["lede"])}</p>'
+        + (f'<p class="feedback-note">{escape(note)}</p>' if note else "")
+        + render_formats(d)
+        + "</section>"
     )
+    stats = render_snapshot(d)
+    stats = f'<section class="cell cell-stats" aria-label="Markets">{stats}</section>' if stats else ""
+    wildcard = render_folder("wildcard", SECTION_TITLES["wildcard"], by_key["wildcard"]["items"]) if "wildcard" in by_key else ""
+    folders = "".join(render_folder(k, SECTION_TITLES[k], by_key[k]["items"]) for k in SECTION_TITLES if k in by_key and k != "wildcard")
+    return f'<div class="bento">{lede}{stats}{render_week(d)}{wildcard}{folders}</div>'
 
 
 def render_snapshot(d):
@@ -190,7 +233,7 @@ def render_snapshot(d):
             tiles.append(f'<a class="tile" href="{escape(s["url"], quote=True)}" target="_blank" rel="noopener">{inner}</a>')
         else:
             tiles.append(f'<div class="tile">{inner}</div>')
-    return f'<div class="snapshot">{"".join(tiles)}</div>' if tiles else ""
+    return "".join(tiles)
 
 
 def page_data(d):
