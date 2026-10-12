@@ -24,7 +24,9 @@ python3 gather.py > /tmp/candidates.md
 ```
 Read `/tmp/candidates.md`. Then run web searches to fill what feeds can't cover.
 Restrict to the last ~36 hours unless noted:
-- **WSJ** (no RSS): `site:wsj.com` economy, markets, the Fed, business, tech.
+- **WSJ** (no RSS, and the search tool can't filter to wsj.com): search for
+  "Wall Street Journal" + economy / markets / Fed / business / tech. Link wsj.com URLs when
+  results include them; otherwise a reputable syndication of the WSJ story is fine.
 - **Fed people:** latest from **Kevin Warsh**, **Jerome Powell**, **Austan Goolsbee**
   — speeches, interviews, testimony, op-eds, podcast appearances (last 72h).
 - **Macro:** what moved markets yesterday; data released yesterday or due today.
