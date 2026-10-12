@@ -1,0 +1,24 @@
+{
+  "_note": "Feeds read by gather.py. 'window_hours' is how far back to look. WSJ has no live RSS — it comes from web search (see ROUTINE.md).",
+  "feeds": [
+    {"group": "podcast", "name": "Odd Lots", "url": "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/8a94442e-5a74-4fa2-8b8d-ae27003a8d6b/982f5071-765c-403d-969d-ae27003a8d83/podcast.rss", "window_hours": 72},
+    {"group": "podcast", "name": "Acquired", "url": "https://feeds.transistor.fm/acquired", "window_hours": 168},
+    {"group": "podcast", "name": "How I Built This", "url": "https://rss.art19.com/how-i-built-this", "window_hours": 96},
+
+    {"group": "fed", "name": "Fed speeches", "url": "https://www.federalreserve.gov/feeds/speeches.xml", "window_hours": 72},
+    {"group": "fed", "name": "Fed press releases", "url": "https://www.federalreserve.gov/feeds/press_all.xml", "window_hours": 48},
+
+    {"group": "yc", "name": "YC blog", "url": "https://www.ycombinator.com/blog/rss/", "window_hours": 168},
+    {"group": "tech", "name": "Hacker News (300+ pts)", "url": "https://hnrss.org/frontpage?points=300", "window_hours": 30},
+
+    {"group": "video", "name": "Andrej Karpathy (YouTube)", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXUPKJO5MZQN11PqgIvyuvQ", "window_hours": 336},
+    {"group": "karpathy", "name": "Andrej Karpathy (blog)", "url": "https://karpathy.bearblog.dev/feed/", "window_hours": 336},
+
+    {"group": "read", "name": "The Economist — Finance & economics", "url": "https://www.economist.com/finance-and-economics/rss.xml", "window_hours": 36},
+    {"group": "read", "name": "The Economist — Business", "url": "https://www.economist.com/business/rss.xml", "window_hours": 36},
+    {"group": "read", "name": "The Economist — Leaders", "url": "https://www.economist.com/leaders/rss.xml", "window_hours": 72},
+    {"group": "read", "name": "NYT — Economy", "url": "https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml", "window_hours": 30},
+    {"group": "read", "name": "NYT — Business", "url": "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml", "window_hours": 30},
+    {"group": "read", "name": "NYT — Technology", "url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", "window_hours": 30}
+  ]
+}

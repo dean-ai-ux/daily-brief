@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-12",
+  "generated": "2026-10-12T13:56:00-04:00",
+  "lede": "Inflation is back in charge: oil above $100 and a 10-year near 5.3% set up Wednesday's CPI, while Warsh takes heat from the White House for September's hike. Plus a Nobel for the economists behind forward guidance, and Karpathy on how far ahead the AI frontier has pulled.",
+  "feedback_note": "First edition. Tap ✓ when you've read or heard something and ✗ when it's not for you; tomorrow's picks learn from both.",
+  "sections": [
+    {"key": "top", "items": [
+      {
+        "id": "oil-yields-inflation",
+        "title": "Oil tops $104 and the 10-year sits near a 24-year high",
+        "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/",
+        "source": "AP via Detroit News",
+        "meta": "3 min read",
+        "summary": "Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.",
+        "why": "This is the backdrop for Wednesday's CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28."
+      },
+      {
+        "id": "trump-warsh-hike",
+        "title": "Trump says Warsh should have voted against September's rate hike",
+        "url": "https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike",
+        "source": "Bloomberg Law",
+        "summary": "Trump told Time he 'probably would have voted against the board' in Warsh's place, but later said Warsh should vote the way he wants and blamed a 'very hostile board'. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.",
+        "why": "The first open test of the new chair's independence, with a possible second hike two weeks away."
+      },
+      {
+        "id": "nobel-hall-woodford",
+        "title": "Robert Hall and Michael Woodford win the economics Nobel",
+        "url": "https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel",
+        "source": "The Economist",
+        "summary": "Two 'New Keynesians' are honoured for showing how policymakers can keep economies steady through shocks. Woodford's work is the intellectual basis of modern central-bank forward guidance.",
+        "why": "Timely irony: Warsh has vowed a 'quieter' Fed that gives markets fewer signals, which is a step away from Woodford's playbook."
+      },
+      {
+        "id": "karpathy-capability-funnel",
+        "title": "Karpathy: the AI capability gap is now 'a sharp funnel'",
+        "url": "https://x.com/karpathy/status/2109361546505966046",
+        "source": "Andrej Karpathy on X",
+        "summary": "His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.",
+        "why": "A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May)."
+      },
+      {
+        "id": "yc-state-of-startups-2026",
+        "title": "YC partners: startups are moving from bits to atoms",
+        "url": "https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026",
+        "source": "Y Combinator",
+        "meta": "Video discussion",
+        "summary": "Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.",
+        "why": "The clearest read on where early-stage capital and talent are heading."
+      }
+    ]},
+    {"key": "fed", "items": [
+      {
+        "id": "goolsbee-hike-or-pause",
+        "title": "Goolsbee: a hike and a pause are both 'on the table'",
+        "url": "https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html",
+        "source": "Yahoo Finance",
+        "meta": "Oct 2",
+        "summary": "On Fox Business, Goolsbee said the labor market looks steady and too-high inflation is the bigger priority. 'Let's see if we can get some evidence put together that suggests we're headed back to 2% inflation.'"
+      },
+      {
+        "id": "waller-sep-signaling",
+        "title": "Waller on the signaling value of the Fed's projections",
+        "url": "https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm",
+        "source": "Federal Reserve",
+        "meta": "Speech · Oct 8",
+        "summary": "Delivered in Istanbul. Reported as signaling that the Fed could pause at its next meeting while still expecting more hikes to be needed to get inflation back to 2%."
+      },
+      {
+        "id": "warsh-imf-praise",
+        "title": "IMF's Georgieva praises Warsh for putting price stability first",
+        "url": "https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability",
+        "source": "Bloomberg",
+        "meta": "Oct 7",
+        "summary": "Georgieva said Warsh 'sent a clear signal that price stability is a priority for the Fed', with actions and not just words."
+      }
+    ]},
+    {"key": "listen", "items": [
+      {
+        "id": "oddlots-treasuries-risky",
+        "title": "Why Treasuries are 'risky' again",
+        "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again",
+        "source": "Odd Lots",
+        "meta": "51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)",
+        "summary": "Why bonds have become more stock-like, what happens when investors can't hedge equities with government debt, and how the Fed's reaction function feeds into yields.",
+        "why": "The best explainer for the 5.3% 10-year, from a scholar at Goolsbee's Chicago Fed."
+      },
+      {
+        "id": "oddlots-nate-soares",
+        "title": "Nate Soares on how AI really could kill us all",
+        "url": "https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all",
+        "source": "Odd Lots",
+        "meta": "76 min · new today",
+        "summary": "After July's Hugging Face incident, in which OpenAI test agents breached a third party's infrastructure, the co-author of 'If Anyone Builds It, Everyone Dies' makes the doomer case to two markets reporters."
+      },
+      {
+        "id": "acquired-home-depot",
+        "title": "The Home Depot",
+        "url": "https://www.acquired.fm/episodes/home-depot",
+        "source": "Acquired",
+        "meta": "3 hr 35 min · Sep 14 · spread over a week of commutes",
+        "summary": "Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it."
+      }
+    ]},
+    {"key": "watch", "items": [
+      {
+        "id": "yt-kimi-k3-code-swarm",
+        "title": "Kimi K3 Code Swarm: 300 coding sub-agents in parallel",
+        "url": "https://www.youtube.com/watch?v=i-x2PoejYeA",
+        "source": "YouTube",
+        "meta": "Demo · from late summer",
+        "summary": "A creator demos Moonshot AI's Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It's the trend Karpathy describes, at consumer scale."
+      },
+      {
+        "id": "yt-claude-code-swarms-safely",
+        "title": "How to use agent swarms in Claude Code without getting lost",
+        "url": "https://www.youtube.com/watch?v=AHU7Rfj-yJw",
+        "source": "YouTube",
+        "meta": "Tutorial",
+        "summary": "A practical walkthrough of running several coding agents at once and keeping their work coordinated: the hands-on side of the multi-agent wave."
+      }
+    ]},
+    {"key": "read", "items": [
+      {
+        "id": "nyt-bananas-iran-war",
+        "title": "America's favorite fruit is being bruised by the Iran war",
+        "url": "https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html",
+        "source": "NYT",
+        "summary": "Following one banana from farm to store shows how the war's economic effects have cascaded into surprising industries."
+      },
+      {
+        "id": "nyt-energy-order-tested",
+        "title": "World's energy order tested again as the Iran war's reach extends",
+        "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html",
+        "source": "NYT",
+        "summary": "'We are entering an age of prolonged insecurity,' says a former US energy official, as chronic threats hit the Middle East's energy core."
+      },
+      {
+        "id": "nyt-europe-chinese-cars",
+        "title": "Europeans have a love-hate relationship with Chinese cars",
+        "url": "https://www.nytimes.com/2026/10/12/business/europe-china-evs-hybrids.html",
+        "source": "NYT",
+        "summary": "Consumers across the continent increasingly want cheap Chinese vehicles, while policymakers try to slow them down."
+      },
+      {
+        "id": "economist-millennials",
+        "title": "Don't feel sorry for millennials. They are living it up now",
+        "url": "https://www.economist.com/finance-and-economics/2026/10/11/dont-feel-sorry-for-millennials-they-are-living-it-up-now",
+        "source": "The Economist",
+        "summary": "It is easy to exaggerate their economic woes, and the data say they're doing better than the story suggests."
+      }
+    ]}
+  ],
+  "radar": [
+    {"when": "Wed Oct 14", "what": "September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core."},
+    {"when": "Thu Oct 15", "what": "PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET."},
+    {"when": "This week", "what": "Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand."},
+    {"when": "Oct 27–28", "what": "FOMC meeting. The Fed has penciled in one more hike this year."}
+  ]
+}
