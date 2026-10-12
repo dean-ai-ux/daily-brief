@@ -21,30 +21,34 @@
        tracked uppercase labels, hairline borders. Light theme is its inverse. */
     :root {
       --bg: #0d0d0d;
+      --panel: #141413;
       --ink: #e8e4df;
-      --ink-2: rgba(232, 228, 223, 0.66);
-      --ink-3: rgba(232, 228, 223, 0.42);
-      --line: rgba(232, 228, 223, 0.14);
-      --line-strong: rgba(232, 228, 223, 0.3);
-      --wash: rgba(232, 228, 223, 0.05);
+      --ink-2: rgba(232, 228, 223, 0.68);
+      --ink-3: rgba(232, 228, 223, 0.44);
+      --line: rgba(232, 228, 223, 0.12);
+      --line-strong: rgba(232, 228, 223, 0.28);
+      --wash: rgba(232, 228, 223, 0.06);
       --done: #a8c3a1;
       --done-ink: #0d0d0d;
+      --scrim: rgba(0, 0, 0, 0.62);
       --w-body: 300;
-      --gutter: clamp(16px, 5vw, 28px);
+      --gutter: clamp(12px, 3.5vw, 32px);
       --track: 0.2em;
       color-scheme: dark;
     }
     @media (prefers-color-scheme: light) {
       :root {
         --bg: #f3f0eb;
+        --panel: #faf8f5;
         --ink: #161514;
-        --ink-2: rgba(22, 21, 20, 0.7);
-        --ink-3: rgba(22, 21, 20, 0.48);
-        --line: rgba(22, 21, 20, 0.13);
-        --line-strong: rgba(22, 21, 20, 0.3);
+        --ink-2: rgba(22, 21, 20, 0.72);
+        --ink-3: rgba(22, 21, 20, 0.5);
+        --line: rgba(22, 21, 20, 0.11);
+        --line-strong: rgba(22, 21, 20, 0.28);
         --wash: rgba(22, 21, 20, 0.04);
         --done: #3d6a45;
         --done-ink: #f3f0eb;
+        --scrim: rgba(22, 21, 20, 0.35);
         --w-body: 400;
         color-scheme: light;
       }
@@ -53,529 +57,505 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
     body {
-      font-family: 'Lato', system-ui, sans-serif;
-      font-weight: var(--w-body);
-      background: var(--bg);
-      color: var(--ink);
-      line-height: 1.55;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
+      font-family: 'Lato', system-ui, sans-serif; font-weight: var(--w-body);
+      background: var(--bg); color: var(--ink); line-height: 1.45;
+      overflow-x: hidden; -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
-    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-    .label {
-      text-transform: uppercase; letter-spacing: var(--track);
-      font-size: 11px; font-weight: 400; color: var(--ink-3);
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: inherit; }
+    .label, .card-title, .brand, .why-label, .tile-label {
+      text-transform: uppercase; letter-spacing: var(--track); font-weight: 400;
     }
 
-    .wrap {
-      max-width: 640px; margin: 0 auto;
-      padding: 0 var(--gutter) calc(48px + env(safe-area-inset-bottom));
+    /* ---- Top bar ---- */
+    .top { position: sticky; top: 0; z-index: 20; background: var(--bg); padding-top: env(safe-area-inset-top); }
+    .top-row {
+      max-width: 1320px; margin: 0 auto; padding: 12px var(--gutter);
+      display: flex; align-items: center; gap: 14px;
     }
-
-    /* Sticky progress strip */
-    .strip {
-      position: sticky; top: 0; z-index: 10;
-      background: var(--bg);
-      padding-top: env(safe-area-inset-top);
-    }
-    .strip-row {
-      max-width: 640px; margin: 0 auto; padding: 12px var(--gutter);
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-    }
-    .brand { text-transform: uppercase; letter-spacing: var(--track); font-size: 13px; font-weight: 400; }
+    .brand { font-size: 12px; }
+    .top-date { font-size: 13px; color: var(--ink-2); }
+    .top-gen { font-size: 12px; color: var(--ink-3); }
+    .spacer { flex: 1; }
     .progress-count { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-2); }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+      border: 1px solid var(--line); color: var(--ink-2);
+    }
+    .icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
     .progress-track { height: 1px; background: var(--line); }
     .progress-bar { height: 1px; width: 0; background: var(--ink); transition: width 0.4s ease; }
 
-    /* Masthead */
-    .masthead { padding: 36px 0 28px; }
-    .date-line {
-      font-size: clamp(30px, 9vw, 42px); font-weight: 300; line-height: 1.1;
-      letter-spacing: -0.01em; margin: 10px 0 18px;
-    }
-    .lede { font-size: 19px; line-height: 1.5; color: var(--ink); max-width: 34em; }
-    .feedback-note { margin-top: 14px; font-size: 14px; color: var(--ink-3); font-style: italic; }
-    .latest-link { display: inline-block; margin-top: 16px; font-size: 14px; border-bottom: 1px solid var(--line-strong); }
+    .wrap { max-width: 1320px; margin: 0 auto; padding: 14px var(--gutter) calc(32px + env(safe-area-inset-bottom)); }
 
-    /* Jump nav */
-    .jump {
-      display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
-      margin: 0 calc(-1 * var(--gutter)) 8px; padding: 0 var(--gutter) 4px;
+    /* ---- Intro: lede + snapshot ---- */
+    .intro { display: grid; gap: 12px; margin-bottom: 14px; }
+    .lede { font-size: 15px; line-height: 1.5; color: var(--ink); }
+    .feedback-note { margin-top: 6px; font-size: 12.5px; color: var(--ink-3); font-style: italic; }
+    .latest-link { display: inline-block; margin-top: 8px; font-size: 13px; border-bottom: 1px solid var(--line-strong); }
+    .snapshot {
+      display: grid; grid-auto-flow: column; grid-auto-columns: minmax(138px, 1fr); gap: 8px;
+      overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory;
+      margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter);
     }
-    .jump::-webkit-scrollbar { display: none; }
-    .jump a {
-      flex: none; min-height: 36px; display: inline-flex; align-items: center;
-      padding: 0 14px; border: 1px solid var(--line); border-radius: 999px;
-      text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 400; color: var(--ink-2);
+    .snapshot::-webkit-scrollbar { display: none; }
+    .tile { scroll-snap-align: start; }
+    .tile {
+      display: flex; flex-direction: column; gap: 2px; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 12px; background: var(--panel); min-width: 0;
     }
-    .jump a:active { background: var(--wash); }
+    .tile-label { font-size: 9.5px; color: var(--ink-3); letter-spacing: 0.16em; }
+    .tile-value { font-size: 20px; font-weight: 300; font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .tile-note { font-size: 11.5px; color: var(--ink-3); line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    a.tile:active { background: var(--wash); }
 
-    /* Sections */
-    .section { padding-top: 36px; scroll-margin-top: 56px; }
-    .section-title {
-      display: flex; align-items: baseline; gap: 10px;
-      text-transform: uppercase; letter-spacing: var(--track);
-      font-size: 13px; font-weight: 400; padding-bottom: 12px;
-      border-bottom: 1px solid var(--line-strong);
+    /* ---- Card grid ---- */
+    .grid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 14px 4px; min-width: 0;
     }
-    .section-count { font-size: 11px; color: var(--ink-3); letter-spacing: 0.1em; }
-
-    /* Items */
-    .item {
-      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px;
-      padding: 20px 0; border-bottom: 1px solid var(--line);
-      transition: opacity 0.3s ease;
+    .card-title {
+      display: flex; align-items: baseline; gap: 8px; font-size: 11px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--line-strong);
     }
-    .item-source {
-      text-transform: uppercase; letter-spacing: 0.14em;
-      font-size: 11px; font-weight: 400; color: var(--ink-3); margin-bottom: 6px;
-    }
-    .item-title { font-size: 19px; font-weight: 400; line-height: 1.32; letter-spacing: 0; text-transform: none; }
-    .item-title a { overflow-wrap: anywhere; }
-    .item-title a:active { opacity: 0.6; }
-    .item-summary { margin-top: 8px; font-size: 16px; color: var(--ink-2); }
-    .item-why { margin-top: 10px; font-size: 15px; color: var(--ink-2); padding-left: 12px; border-left: 1px solid var(--line-strong); }
-    .why-label {
-      display: block; text-transform: uppercase; letter-spacing: 0.14em;
-      font-size: 10px; font-weight: 400; color: var(--ink-3); margin-bottom: 2px;
+    .card-count { font-size: 10px; color: var(--ink-3); letter-spacing: 0.1em; }
+    .card-top { grid-area: top; } .card-fed { grid-area: fed; } .card-radar { grid-area: radar; }
+    .card-listen { grid-area: listen; } .card-watch { grid-area: watch; } .card-read { grid-area: read; }
+    .grid {
+      grid-template-areas: "top" "fed" "listen" "watch" "read" "radar";
     }
 
-    .item-actions { display: flex; flex-direction: column; gap: 8px; }
+    /* ---- Rows ---- */
+    .rows { list-style: none; }
+    .row {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--line); transition: opacity 0.25s ease;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row-open { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; min-width: 0; -webkit-tap-highlight-color: transparent; }
+    .row-open:active .row-title { opacity: 0.6; }
+    .row-src { font-size: 10px; text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-3); font-weight: 400;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-title {
+      font-size: 15px; font-weight: 400; line-height: 1.32;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .row-sum { display: none; font-size: 13.5px; color: var(--ink-2); line-height: 1.4;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .row-acts { display: flex; gap: 6px; }
     .act {
-      width: 44px; height: 44px; border-radius: 50%;
-      border: 1px solid var(--line-strong);
-      display: grid; place-items: center;
-      transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-strong);
+      display: grid; place-items: center; position: relative;
+      transition: background 0.2s ease, border-color 0.2s ease; -webkit-tap-highlight-color: transparent;
     }
-    .act svg { width: 18px; height: 18px; fill: none; stroke: var(--ink-2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .act::after { content: ""; position: absolute; inset: -4px -3px; } /* 44px hit area */
+    .act svg { width: 15px; height: 15px; fill: none; stroke: var(--ink-2); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
     .act:active { background: var(--wash); }
     .act-done[aria-pressed="true"] { background: var(--done); border-color: var(--done); }
-    .act-done[aria-pressed="true"] svg { stroke: var(--done-ink); stroke-width: 2; }
+    .act-done[aria-pressed="true"] svg { stroke: var(--done-ink); stroke-width: 2.2; }
     .act-nope[aria-pressed="true"] { background: var(--ink-3); border-color: transparent; }
-    .act-nope[aria-pressed="true"] svg { stroke: var(--bg); stroke-width: 2; }
+    .act-nope[aria-pressed="true"] svg { stroke: var(--bg); stroke-width: 2.2; }
 
-    .item.is-done .item-title a { text-decoration: line-through; text-decoration-thickness: 1px; }
-    .item.is-done .item-body { opacity: 0.5; }
-    .item.is-nope { padding: 12px 0; }
-    .item.is-nope .item-body { opacity: 0.38; }
-    .item.is-nope .item-more, .item.is-nope .item-source { display: none; }
-    .item.is-nope .item-title { font-size: 15px; }
-    .item.is-nope .act-done { display: none; }
+    .row.is-done .row-title { text-decoration: line-through; text-decoration-thickness: 1px; }
+    .row.is-done .row-open { opacity: 0.45; }
+    .row.is-nope .row-open { opacity: 0.32; padding: 6px 0; }
+    .row.is-nope .row-src, .row.is-nope .row-sum { display: none !important; }
+    .row.is-nope .row-title { font-size: 13px; -webkit-line-clamp: 1; }
+    .row.is-nope .act-done { visibility: hidden; }
 
-    /* Radar + archive lists */
+    /* ---- Radar ---- */
     .radar { list-style: none; }
-    .radar li { border-bottom: 1px solid var(--line); }
-    .radar li, .radar li a { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; padding: 14px 0; }
+    .radar li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .radar li:last-child { border-bottom: 0; }
+    .radar-when { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 400; color: var(--ink-3); padding-top: 3px; }
+    .radar-what { font-size: 13.5px; color: var(--ink-2); }
     .radar.archive li { display: block; padding: 0; }
-    .radar-when { text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 400; color: var(--ink-3); padding-top: 3px; }
-    .radar-what { font-size: 16px; color: var(--ink-2); }
+    .radar.archive a { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; padding: 12px 0; }
 
-    /* Footer */
-    .foot {
-      margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line);
-      display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center;
-      font-size: 13px; color: var(--ink-3);
-    }
-    .foot a, .foot button { min-height: 44px; display: inline-flex; align-items: center; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 400; }
-    .sync-status { width: 100%; font-size: 13px; color: var(--ink-3); }
+    /* ---- Footer ---- */
+    .foot { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; font-size: 12.5px; color: var(--ink-3); }
+    .foot a, .foot button { min-height: 40px; display: inline-flex; align-items: center; color: var(--ink-2);
+      text-transform: uppercase; letter-spacing: 0.14em; font-size: 10.5px; font-weight: 400; }
+    .sync-status { flex: 1 1 260px; font-size: 12.5px; }
 
-    /* Sync settings sheet */
-    dialog {
-      margin: auto auto 0; width: 100%; max-width: 640px; border: 0;
-      border-top: 1px solid var(--line-strong); border-radius: 16px 16px 0 0;
-      background: var(--bg); color: var(--ink);
-      padding: 24px var(--gutter) calc(24px + env(safe-area-inset-bottom));
+    /* ---- Tablet ---- */
+    @media (min-width: 700px) {
+      .snapshot { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas: "top top" "fed radar" "listen watch" "read read"; }
+      .grid:not(.has-fed) { grid-template-areas: "top top" "radar radar" "listen watch" "read read"; }
+      .card-top .row-sum { display: -webkit-box; }
+      .lede { font-size: 16.5px; }
     }
-    dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
-    dialog h2 { text-transform: uppercase; letter-spacing: var(--track); font-size: 13px; font-weight: 400; margin-bottom: 12px; }
-    dialog p, dialog li { font-size: 15px; color: var(--ink-2); margin-bottom: 10px; }
-    dialog ol { padding-left: 20px; margin-bottom: 16px; }
-    dialog a { border-bottom: 1px solid var(--line-strong); }
-    dialog input {
-      width: 100%; min-height: 48px; padding: 0 14px; margin: 4px 0 14px;
-      font: inherit; font-size: 16px; color: var(--ink); background: var(--wash);
-      border: 1px solid var(--line-strong); border-radius: 10px;
+    /* ---- Desktop: one screen. Cards keep their own height (align-items: start). ---- */
+    @media (min-width: 1100px) {
+      .intro { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; }
+      /* Extra height from a tall "top" card goes to the last row, where it's invisible. */
+      .grid { align-items: start; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto 1fr;
+        grid-template-areas: "top fed listen" "top radar watch" "top read read"; }
+      .grid:not(.has-fed) { grid-template-areas: "top radar listen" "top radar watch" "top read read"; }
+      .grid:not(.has-radar) { grid-template-areas: "top fed listen" "top fed watch" "top read read"; }
+      .grid:not(.has-fed):not(.has-radar) { grid-template-areas: "top listen watch" "top read read" "top read read"; }
+      .card-read .rows { columns: 2; column-gap: 24px; }
+      .card-read .row { break-inside: avoid; }
+      .card-read .row:last-child { border-bottom: 1px solid var(--line); }
     }
-    .sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    @media (min-width: 1360px) {
+      .grid { grid-template-columns: 1.25fr 1fr 1fr 1fr; grid-template-rows: auto 1fr;
+        grid-template-areas: "top fed listen read" "top radar watch read"; }
+      .grid:not(.has-fed) { grid-template-areas: "top radar listen read" "top radar watch read"; }
+      .grid:not(.has-radar) { grid-template-areas: "top fed listen read" "top fed watch read"; }
+      .grid:not(.has-fed):not(.has-radar) { grid-template-areas: "top top listen read" "top top watch read"; }
+      .card-read .rows { columns: 1; }
+      .card-read .row:last-child { border-bottom: 0; }
+    }
+
+    /* ---- Click-in detail panel: bottom sheet on phones, side drawer on desktop ---- */
+    dialog { color: var(--ink); background: var(--bg); border: 0; padding: 0; max-width: none; max-height: none; }
+    dialog::backdrop { background: var(--scrim); }
+    .detail {
+      margin: auto 0 0; width: 100%; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain;
+      border-top: 1px solid var(--line-strong); border-radius: 18px 18px 0 0;
+      padding: 8px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+    }
+    .detail-grip { width: 36px; height: 4px; border-radius: 2px; background: var(--line-strong); margin: 0 auto 8px; }
+    .detail-head { display: flex; align-items: center; gap: 8px; position: sticky; top: -8px; background: var(--bg); padding: 8px 0; z-index: 1; }
+    .detail-head .label { font-size: 10.5px; color: var(--ink-3); flex: 1; }
+    .detail-src { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-3); font-weight: 400; margin-top: 6px; }
+    .detail-title:focus { outline: none; }
+    .detail-title { font-size: 22px; font-weight: 400; line-height: 1.28; margin: 6px 0 12px; }
+    .detail-summary { font-size: 16px; color: var(--ink-2); line-height: 1.55; }
+    .detail-block { margin-top: 18px; }
+    .why-label { display: block; font-size: 10px; color: var(--ink-3); letter-spacing: 0.16em; margin-bottom: 6px; }
+    .detail-why { font-size: 15.5px; line-height: 1.55; padding-left: 12px; border-left: 1px solid var(--line-strong); }
+    .detail-list { list-style: none; }
+    .detail-list li { font-size: 15px; line-height: 1.5; color: var(--ink-2); padding: 7px 0 7px 16px; position: relative; border-bottom: 1px solid var(--line); }
+    .detail-list li:last-child { border-bottom: 0; }
+    .detail-list li::before { content: ""; position: absolute; left: 2px; top: 16px; width: 5px; height: 1px; background: var(--ink-3); }
+    .detail-list a { display: block; color: var(--ink); }
+    .detail-list a::after { content: " ↗"; color: var(--ink-3); }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
     .btn {
       min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line-strong);
+      display: inline-flex; align-items: center; gap: 6px;
       text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 400;
     }
     .btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-    .sheet-status { margin-top: 14px; font-size: 14px; color: var(--ink-3); min-height: 1.4em; }
+    .btn[aria-pressed="true"].btn-done { background: var(--done); color: var(--done-ink); border-color: var(--done); }
+    .btn[aria-pressed="true"].btn-nope { background: var(--ink-3); color: var(--bg); border-color: transparent; }
+    @media (min-width: 900px) {
+      .detail {
+        margin: 0 0 0 auto; width: 480px; height: 100vh; max-height: 100vh;
+        border-top: 0; border-left: 1px solid var(--line-strong); border-radius: 0;
+        padding: 18px 28px 28px;
+      }
+      .detail-grip { display: none; }
+      .detail-head { top: -18px; }
+      .detail-title { font-size: 24px; }
+    }
+
+    /* ---- Sync settings sheet ---- */
+    .sheet {
+      margin: auto auto 0; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto;
+      border-top: 1px solid var(--line-strong); border-radius: 16px 16px 0 0;
+      padding: 22px var(--gutter) calc(22px + env(safe-area-inset-bottom));
+    }
+    @media (min-width: 900px) { .sheet { margin: auto; border: 1px solid var(--line-strong); border-radius: 16px; padding: 26px 28px; } }
+    .sheet h2 { font-size: 12px; text-transform: uppercase; letter-spacing: var(--track); font-weight: 400; margin-bottom: 12px; }
+    .sheet p, .sheet li { font-size: 14.5px; color: var(--ink-2); margin-bottom: 10px; }
+    .sheet ol { padding-left: 20px; margin-bottom: 14px; }
+    .sheet a { border-bottom: 1px solid var(--line-strong); }
+    .sheet input {
+      width: 100%; min-height: 46px; padding: 0 14px; margin: 6px 0 14px;
+      font: inherit; font-size: 16px; color: var(--ink); background: var(--wash);
+      border: 1px solid var(--line-strong); border-radius: 10px;
+    }
+    .sheet-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .sheet-status { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); min-height: 1.4em; }
+    .label { font-size: 10.5px; color: var(--ink-3); }
 
     @media (hover: hover) {
-      .item-title a:hover, .foot a:hover, .foot button:hover, .jump a:hover { opacity: 0.7; }
-      .act:hover { border-color: var(--ink-2); }
+      .row-open:hover .row-title, .detail-list a:hover, .foot a:hover, .foot button:hover { opacity: 0.72; }
+      .act:hover, .icon-btn:hover { border-color: var(--ink-2); }
+      a.tile:hover { border-color: var(--line-strong); }
     }
+    @media (max-width: 480px) { .top-gen { display: none; } }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body data-date="2026-10-12" data-repo="dean-ai-ux/daily-brief">
-  <div class="strip">
-    <div class="strip-row">
+  <header class="top">
+    <div class="top-row">
       <a class="brand" href="index.html">Daily Brief</a>
-      <span class="progress-count" id="progress-count" aria-live="polite">0 / 0</span>
+      <span class="top-date">Mon Oct 12</span>
+      <span class="top-gen">1:56pm ET</span>
+      <span class="spacer"></span>
+      <span class="progress-count" id="progress-count" aria-live="polite" title="Items done or dismissed">0 / 0</span>
+      <button type="button" class="icon-btn" id="open-sync" aria-label="Sync settings" title="Sync settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3.5v3.6h-3.6M5.5 20.5v-3.6h3.6"/></svg>
+      </button>
     </div>
     <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
-  </div>
+  </header>
 
   <main class="wrap">
-    <header class="masthead">
-      <p class="label">Monday · 1:56pm ET</p>
-      <h1 class="date-line">October 12, 2026</h1>
-      <p class="lede">Inflation is back in charge: oil above $100 and a 10-year near 5.3% set up Wednesday&#x27;s CPI, while Warsh takes heat from the White House for September&#x27;s hike. Plus a Nobel for the economists behind forward guidance, and Karpathy on how far ahead the AI frontier has pulled.</p>
-      <p class="feedback-note">First edition. Tap ✓ when you&#x27;ve read or heard something and ✗ when it&#x27;s not for you; tomorrow&#x27;s picks learn from both.</p>
-      
-    </header>
+    <h1 class="label" style="position:absolute;left:-9999px">Daily brief for Monday, October 12</h1>
+    <div class="intro">
+      <div>
+        <p class="lede">Inflation is back in charge: oil above $100 and a 10-year near 5.3% set up Wednesday&#x27;s CPI, while Warsh takes heat from the White House for September&#x27;s hike. Plus a Nobel for the economists behind forward guidance, and Karpathy on how far ahead the AI frontier has pulled.</p>
+        <p class="feedback-note">First edition. Tap ✓ when you&#x27;ve read or heard something and ✗ when it&#x27;s not for you; tomorrow&#x27;s picks learn from both.</p>
+        
+      </div>
+      <div class="snapshot"><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">10-yr Treasury</span><span class="tile-value">5.29%</span><span class="tile-note">Oct 8 · near 2002 high</span></a><a class="tile" href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener"><span class="tile-label">Brent crude</span><span class="tile-value">$104+</span><span class="tile-note">Oct 8 · +4.2% on Gulf attacks</span></a><div class="tile"><span class="tile-label">Fed funds</span><span class="tile-value">3.75–4.00%</span><span class="tile-note">Hiked Sep 16 · next Oct 27–28</span></div><a class="tile" href="https://investinglive.com/news/week-ahead-us-inflation-and-retail-sales-lead-a-busy-economic-calendar-be-aware/" target="_blank" rel="noopener"><span class="tile-label">CPI · Wed</span><span class="tile-value">3.6% exp.</span><span class="tile-note">Headline y/y · prior 3.4%</span></a></div>
+    </div>
 
-    <nav class="jump" id="jump" aria-label="Sections"></nav>
-    
-    <section class="section" id="top">
-      <h2 class="section-title">Top of mind<span class="section-count">5</span></h2>
-      
-      <article class="item" data-id="oil-yields-inflation" data-section="top" data-title="Oil tops $104 and the 10-year sits near a 24-year high" data-source="AP via Detroit News" data-url="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/">
-        <div class="item-body">
-          <p class="item-source">AP via Detroit News · 3 min read</p>
-          <h3 class="item-title"><a href="https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/" target="_blank" rel="noopener">Oil tops $104 and the 10-year sits near a 24-year high</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> This is the backdrop for Wednesday&#x27;s CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.</p>
+    <div class="grid has-top has-fed has-listen has-watch has-read has-radar">
+    <section class="card card-top" id="top" aria-labelledby="top-h">
+      <h2 class="card-title" id="top-h">Top of mind<span class="card-count">5</span></h2>
+      <ul class="rows">
+        <li class="row" data-id="oil-yields-inflation">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">AP via Detroit News · 3 min read</span>
+            <span class="row-title">Oil tops $104 and the 10-year sits near a 24-year high</span>
+            <span class="row-sum">Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.</span>
+          </button>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="trump-warsh-hike">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Bloomberg Law</span>
+            <span class="row-title">Trump says Warsh should have voted against September&#x27;s rate hike</span>
+            <span class="row-sum">Trump told Time he &#x27;probably would have voted against the board&#x27; in Warsh&#x27;s place, but later said Warsh should vote the way he wants and blamed a &#x27;very hostile board&#x27;. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="trump-warsh-hike" data-section="top" data-title="Trump says Warsh should have voted against September&#x27;s rate hike" data-source="Bloomberg Law" data-url="https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike">
-        <div class="item-body">
-          <p class="item-source">Bloomberg Law</p>
-          <h3 class="item-title"><a href="https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike" target="_blank" rel="noopener">Trump says Warsh should have voted against September&#x27;s rate hike</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Trump told Time he &#x27;probably would have voted against the board&#x27; in Warsh&#x27;s place, but later said Warsh should vote the way he wants and blamed a &#x27;very hostile board&#x27;. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> The first open test of the new chair&#x27;s independence, with a possible second hike two weeks away.</p>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="nobel-hall-woodford">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">The Economist</span>
+            <span class="row-title">Robert Hall and Michael Woodford win the economics Nobel</span>
+            <span class="row-sum">Two &#x27;New Keynesians&#x27; are honoured for showing how policymakers can keep economies steady through shocks. Woodford&#x27;s work is the intellectual basis of modern central-bank forward guidance.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="nobel-hall-woodford" data-section="top" data-title="Robert Hall and Michael Woodford win the economics Nobel" data-source="The Economist" data-url="https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel">
-        <div class="item-body">
-          <p class="item-source">The Economist</p>
-          <h3 class="item-title"><a href="https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel" target="_blank" rel="noopener">Robert Hall and Michael Woodford win the economics Nobel</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Two &#x27;New Keynesians&#x27; are honoured for showing how policymakers can keep economies steady through shocks. Woodford&#x27;s work is the intellectual basis of modern central-bank forward guidance.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> Timely irony: Warsh has vowed a &#x27;quieter&#x27; Fed that gives markets fewer signals, which is a step away from Woodford&#x27;s playbook.</p>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="karpathy-capability-funnel">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Andrej Karpathy on X</span>
+            <span class="row-title">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</span>
+            <span class="row-sum">His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="karpathy-capability-funnel" data-section="top" data-title="Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;" data-source="Andrej Karpathy on X" data-url="https://x.com/karpathy/status/2109361546505966046">
-        <div class="item-body">
-          <p class="item-source">Andrej Karpathy on X</p>
-          <h3 class="item-title"><a href="https://x.com/karpathy/status/2109361546505966046" target="_blank" rel="noopener">Karpathy: the AI capability gap is now &#x27;a sharp funnel&#x27;</a></h3>
-          <div class="item-more">
-            <p class="item-summary">His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May).</p>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="yc-state-of-startups-2026">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Y Combinator · Video discussion</span>
+            <span class="row-title">YC partners: startups are moving from bits to atoms</span>
+            <span class="row-sum">Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="yc-state-of-startups-2026" data-section="top" data-title="YC partners: startups are moving from bits to atoms" data-source="Y Combinator" data-url="https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026">
-        <div class="item-body">
-          <p class="item-source">Y Combinator · Video discussion</p>
-          <h3 class="item-title"><a href="https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026" target="_blank" rel="noopener">YC partners: startups are moving from bits to atoms</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> The clearest read on where early-stage capital and talent are heading.</p>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
+        </li></ul>
     </section>
-    <section class="section" id="fed">
-      <h2 class="section-title">Fed watch<span class="section-count">3</span></h2>
-      
-      <article class="item" data-id="goolsbee-hike-or-pause" data-section="fed" data-title="Goolsbee: a hike and a pause are both &#x27;on the table&#x27;" data-source="Yahoo Finance" data-url="https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html">
-        <div class="item-body">
-          <p class="item-source">Yahoo Finance · Oct 2</p>
-          <h3 class="item-title"><a href="https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html" target="_blank" rel="noopener">Goolsbee: a hike and a pause are both &#x27;on the table&#x27;</a></h3>
-          <div class="item-more">
-            <p class="item-summary">On Fox Business, Goolsbee said the labor market looks steady and too-high inflation is the bigger priority. &#x27;Let&#x27;s see if we can get some evidence put together that suggests we&#x27;re headed back to 2% inflation.&#x27;</p>
-            
+    <section class="card card-fed" id="fed" aria-labelledby="fed-h">
+      <h2 class="card-title" id="fed-h">Fed watch<span class="card-count">3</span></h2>
+      <ul class="rows">
+        <li class="row" data-id="goolsbee-hike-or-pause">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Yahoo Finance · Oct 2</span>
+            <span class="row-title">Goolsbee: a hike and a pause are both &#x27;on the table&#x27;</span>
+            <span class="row-sum">On Fox Business, Goolsbee said the labor market looks steady and too-high inflation is the bigger priority. &#x27;Let&#x27;s see if we can get some evidence put together that suggests we&#x27;re headed back to 2% inflation.&#x27;</span>
+          </button>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="waller-sep-signaling">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Federal Reserve · Speech · Oct 8</span>
+            <span class="row-title">Waller on the signaling value of the Fed&#x27;s projections</span>
+            <span class="row-sum">Delivered in Istanbul. Reported as signaling that the Fed could pause at its next meeting while still expecting more hikes to be needed to get inflation back to 2%.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="waller-sep-signaling" data-section="fed" data-title="Waller on the signaling value of the Fed&#x27;s projections" data-source="Federal Reserve" data-url="https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm">
-        <div class="item-body">
-          <p class="item-source">Federal Reserve · Speech · Oct 8</p>
-          <h3 class="item-title"><a href="https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm" target="_blank" rel="noopener">Waller on the signaling value of the Fed&#x27;s projections</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Delivered in Istanbul. Reported as signaling that the Fed could pause at its next meeting while still expecting more hikes to be needed to get inflation back to 2%.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="warsh-imf-praise">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Bloomberg · Oct 7</span>
+            <span class="row-title">IMF&#x27;s Georgieva praises Warsh for putting price stability first</span>
+            <span class="row-sum">Georgieva said Warsh &#x27;sent a clear signal that price stability is a priority for the Fed&#x27;, with actions and not just words.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="warsh-imf-praise" data-section="fed" data-title="IMF&#x27;s Georgieva praises Warsh for putting price stability first" data-source="Bloomberg" data-url="https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability">
-        <div class="item-body">
-          <p class="item-source">Bloomberg · Oct 7</p>
-          <h3 class="item-title"><a href="https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability" target="_blank" rel="noopener">IMF&#x27;s Georgieva praises Warsh for putting price stability first</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Georgieva said Warsh &#x27;sent a clear signal that price stability is a priority for the Fed&#x27;, with actions and not just words.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
+        </li></ul>
     </section>
-    <section class="section" id="listen">
-      <h2 class="section-title">Listen<span class="section-count">3</span></h2>
-      
-      <article class="item" data-id="oddlots-treasuries-risky" data-section="listen" data-title="Why Treasuries are &#x27;risky&#x27; again" data-source="Odd Lots" data-url="https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again">
-        <div class="item-body">
-          <p class="item-source">Odd Lots · 51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)</p>
-          <h3 class="item-title"><a href="https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again" target="_blank" rel="noopener">Why Treasuries are &#x27;risky&#x27; again</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Why bonds have become more stock-like, what happens when investors can&#x27;t hedge equities with government debt, and how the Fed&#x27;s reaction function feeds into yields.</p>
-            <p class="item-why"><span class="why-label">Why it matters</span> The best explainer for the 5.3% 10-year, from a scholar at Goolsbee&#x27;s Chicago Fed.</p>
+    <section class="card card-listen" id="listen" aria-labelledby="listen-h">
+      <h2 class="card-title" id="listen-h">Listen<span class="card-count">3</span></h2>
+      <ul class="rows">
+        <li class="row" data-id="oddlots-treasuries-risky">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Odd Lots · 51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)</span>
+            <span class="row-title">Why Treasuries are &#x27;risky&#x27; again</span>
+            <span class="row-sum">Why bonds have become more stock-like, what happens when investors can&#x27;t hedge equities with government debt, and how the Fed&#x27;s reaction function feeds into yields.</span>
+          </button>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="oddlots-nate-soares">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Odd Lots · 76 min · new today</span>
+            <span class="row-title">Nate Soares on how AI really could kill us all</span>
+            <span class="row-sum">After July&#x27;s Hugging Face incident, in which OpenAI test agents breached a third party&#x27;s infrastructure, the co-author of &#x27;If Anyone Builds It, Everyone Dies&#x27; makes the doomer case to two markets reporters.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="oddlots-nate-soares" data-section="listen" data-title="Nate Soares on how AI really could kill us all" data-source="Odd Lots" data-url="https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all">
-        <div class="item-body">
-          <p class="item-source">Odd Lots · 76 min · new today</p>
-          <h3 class="item-title"><a href="https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all" target="_blank" rel="noopener">Nate Soares on how AI really could kill us all</a></h3>
-          <div class="item-more">
-            <p class="item-summary">After July&#x27;s Hugging Face incident, in which OpenAI test agents breached a third party&#x27;s infrastructure, the co-author of &#x27;If Anyone Builds It, Everyone Dies&#x27; makes the doomer case to two markets reporters.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="acquired-home-depot">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">Acquired · 3 hr 35 min · Sep 14 · spread over a week of commutes</span>
+            <span class="row-title">The Home Depot</span>
+            <span class="row-sum">Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="acquired-home-depot" data-section="listen" data-title="The Home Depot" data-source="Acquired" data-url="https://www.acquired.fm/episodes/home-depot">
-        <div class="item-body">
-          <p class="item-source">Acquired · 3 hr 35 min · Sep 14 · spread over a week of commutes</p>
-          <h3 class="item-title"><a href="https://www.acquired.fm/episodes/home-depot" target="_blank" rel="noopener">The Home Depot</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
+        </li></ul>
     </section>
-    <section class="section" id="watch">
-      <h2 class="section-title">Watch<span class="section-count">2</span></h2>
-      
-      <article class="item" data-id="yt-kimi-k3-code-swarm" data-section="watch" data-title="Kimi K3 Code Swarm: 300 coding sub-agents in parallel" data-source="YouTube" data-url="https://www.youtube.com/watch?v=i-x2PoejYeA">
-        <div class="item-body">
-          <p class="item-source">YouTube · Demo · from late summer</p>
-          <h3 class="item-title"><a href="https://www.youtube.com/watch?v=i-x2PoejYeA" target="_blank" rel="noopener">Kimi K3 Code Swarm: 300 coding sub-agents in parallel</a></h3>
-          <div class="item-more">
-            <p class="item-summary">A creator demos Moonshot AI&#x27;s Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It&#x27;s the trend Karpathy describes, at consumer scale.</p>
-            
+    <section class="card card-watch" id="watch" aria-labelledby="watch-h">
+      <h2 class="card-title" id="watch-h">Watch<span class="card-count">2</span></h2>
+      <ul class="rows">
+        <li class="row" data-id="yt-kimi-k3-code-swarm">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">YouTube · Demo · from late summer</span>
+            <span class="row-title">Kimi K3 Code Swarm: 300 coding sub-agents in parallel</span>
+            <span class="row-sum">A creator demos Moonshot AI&#x27;s Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It&#x27;s the trend Karpathy describes, at consumer scale.</span>
+          </button>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="yt-claude-code-swarms-safely">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">YouTube · Tutorial</span>
+            <span class="row-title">How to use agent swarms in Claude Code without getting lost</span>
+            <span class="row-sum">A practical walkthrough of running several coding agents at once and keeping their work coordinated: the hands-on side of the multi-agent wave.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="yt-claude-code-swarms-safely" data-section="watch" data-title="How to use agent swarms in Claude Code without getting lost" data-source="YouTube" data-url="https://www.youtube.com/watch?v=AHU7Rfj-yJw">
-        <div class="item-body">
-          <p class="item-source">YouTube · Tutorial</p>
-          <h3 class="item-title"><a href="https://www.youtube.com/watch?v=AHU7Rfj-yJw" target="_blank" rel="noopener">How to use agent swarms in Claude Code without getting lost</a></h3>
-          <div class="item-more">
-            <p class="item-summary">A practical walkthrough of running several coding agents at once and keeping their work coordinated: the hands-on side of the multi-agent wave.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
+        </li></ul>
     </section>
-    <section class="section" id="read">
-      <h2 class="section-title">Read<span class="section-count">4</span></h2>
-      
-      <article class="item" data-id="nyt-bananas-iran-war" data-section="read" data-title="America&#x27;s favorite fruit is being bruised by the Iran war" data-source="NYT" data-url="https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html">
-        <div class="item-body">
-          <p class="item-source">NYT</p>
-          <h3 class="item-title"><a href="https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html" target="_blank" rel="noopener">America&#x27;s favorite fruit is being bruised by the Iran war</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Following one banana from farm to store shows how the war&#x27;s economic effects have cascaded into surprising industries.</p>
-            
+    <section class="card card-read" id="read" aria-labelledby="read-h">
+      <h2 class="card-title" id="read-h">Read<span class="card-count">4</span></h2>
+      <ul class="rows">
+        <li class="row" data-id="nyt-bananas-iran-war">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">NYT</span>
+            <span class="row-title">America&#x27;s favorite fruit is being bruised by the Iran war</span>
+            <span class="row-sum">Following one banana from farm to store shows how the war&#x27;s economic effects have cascaded into surprising industries.</span>
+          </button>
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="nyt-energy-order-tested">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">NYT</span>
+            <span class="row-title">World&#x27;s energy order tested again as the Iran war&#x27;s reach extends</span>
+            <span class="row-sum">&#x27;We are entering an age of prolonged insecurity,&#x27; says a former US energy official, as chronic threats hit the Middle East&#x27;s energy core.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="nyt-energy-order-tested" data-section="read" data-title="World&#x27;s energy order tested again as the Iran war&#x27;s reach extends" data-source="NYT" data-url="https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html">
-        <div class="item-body">
-          <p class="item-source">NYT</p>
-          <h3 class="item-title"><a href="https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html" target="_blank" rel="noopener">World&#x27;s energy order tested again as the Iran war&#x27;s reach extends</a></h3>
-          <div class="item-more">
-            <p class="item-summary">&#x27;We are entering an age of prolonged insecurity,&#x27; says a former US energy official, as chronic threats hit the Middle East&#x27;s energy core.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="nyt-europe-chinese-cars">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">NYT</span>
+            <span class="row-title">Europeans have a love-hate relationship with Chinese cars</span>
+            <span class="row-sum">Consumers across the continent increasingly want cheap Chinese vehicles, while policymakers try to slow them down.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="nyt-europe-chinese-cars" data-section="read" data-title="Europeans have a love-hate relationship with Chinese cars" data-source="NYT" data-url="https://www.nytimes.com/2026/10/12/business/europe-china-evs-hybrids.html">
-        <div class="item-body">
-          <p class="item-source">NYT</p>
-          <h3 class="item-title"><a href="https://www.nytimes.com/2026/10/12/business/europe-china-evs-hybrids.html" target="_blank" rel="noopener">Europeans have a love-hate relationship with Chinese cars</a></h3>
-          <div class="item-more">
-            <p class="item-summary">Consumers across the continent increasingly want cheap Chinese vehicles, while policymakers try to slow them down.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </li>
+        <li class="row" data-id="economist-millennials">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            <span class="row-src">The Economist</span>
+            <span class="row-title">Don&#x27;t feel sorry for millennials. They are living it up now</span>
+            <span class="row-sum">It is easy to exaggerate their economic woes, and the data say they&#x27;re doing better than the story suggests.</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
-      <article class="item" data-id="economist-millennials" data-section="read" data-title="Don&#x27;t feel sorry for millennials. They are living it up now" data-source="The Economist" data-url="https://www.economist.com/finance-and-economics/2026/10/11/dont-feel-sorry-for-millennials-they-are-living-it-up-now">
-        <div class="item-body">
-          <p class="item-source">The Economist</p>
-          <h3 class="item-title"><a href="https://www.economist.com/finance-and-economics/2026/10/11/dont-feel-sorry-for-millennials-they-are-living-it-up-now" target="_blank" rel="noopener">Don&#x27;t feel sorry for millennials. They are living it up now</a></h3>
-          <div class="item-more">
-            <p class="item-summary">It is easy to exaggerate their economic woes, and the data say they&#x27;re doing better than the story suggests.</p>
-            
+          <div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
           </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-          </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>
+        </li></ul>
     </section>
-    
-    <section class="section" id="radar">
-      <h2 class="section-title">On the radar</h2>
+    <section class="card card-radar" id="radar" aria-labelledby="radar-h">
+      <h2 class="card-title" id="radar-h">On the radar</h2>
       <ul class="radar"><li><span class="radar-when">Wed Oct 14</span><span class="radar-what">September CPI, 8:30am ET. Consensus 3.6% y/y headline, 2.5% core.</span></li><li><span class="radar-when">Thu Oct 15</span><span class="radar-what">PPI, retail sales, jobless claims and Philly Fed, all 8:30am ET.</span></li><li><span class="radar-when">This week</span><span class="radar-what">Big-bank earnings kick off the season; TSMC reports, a read on AI chip demand.</span></li><li><span class="radar-when">Oct 27–28</span><span class="radar-what">FOMC meeting. The Fed has penciled in one more hike this year.</span></li></ul>
-    </section>
+    </section></div>
 
     <footer class="foot">
       <a href="archive/index.html">Archive</a>
-      <button type="button" id="open-sync">Sync settings</button>
       <p class="sync-status" id="sync-status"></p>
     </footer>
   </main>
 
-  <dialog id="sync-sheet" aria-labelledby="sync-title">
-    <form method="dialog" id="sync-form">
+  <dialog id="detail" class="detail" aria-labelledby="d-title">
+    <div class="detail-grip" aria-hidden="true"></div>
+    <div class="detail-head">
+      <span class="label" id="d-section"></span>
+      <button type="button" class="icon-btn" id="d-prev" aria-label="Previous item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button type="button" class="icon-btn" id="d-next" aria-label="Next item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button type="button" class="icon-btn" id="d-close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+    </div>
+    <p class="detail-src" id="d-src"></p>
+    <h2 class="detail-title" id="d-title" tabindex="-1" autofocus></h2>
+    <p class="detail-summary" id="d-summary"></p>
+    <div class="detail-block" id="d-why-block"><span class="why-label">Why it matters</span><p class="detail-why" id="d-why"></p></div>
+    <div class="detail-block" id="d-deeper-block"><span class="why-label">Go deeper</span><ul class="detail-list" id="d-deeper"></ul></div>
+    <div class="detail-block" id="d-related-block"><span class="why-label">Related</span><ul class="detail-list" id="d-related"></ul></div>
+    <div class="detail-actions">
+      <a class="btn btn-primary" id="d-open" target="_blank" rel="noopener">Read ↗</a>
+      <button type="button" class="btn btn-done" id="d-done" aria-pressed="false">✓ Done</button>
+      <button type="button" class="btn btn-nope" id="d-nope" aria-pressed="false">✕ Not for me</button>
+    </div>
+  </dialog>
+
+  <dialog id="sync-sheet" class="sheet" aria-labelledby="sync-title">
+    <form method="dialog">
       <h2 id="sync-title">Teach tomorrow's brief</h2>
-      <p>Your ✓ and ✗ marks are always saved on this phone. Add a GitHub token once and they also sync to the repo, where the morning run reads them.</p>
+      <p>Your ✓ and ✕ marks are always saved on this device. Add a GitHub token once and they also sync to the repo, where the morning run reads them.</p>
       <ol>
         <li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">new fine-grained token</a>.</li>
         <li>Repository access: <b>Only select repositories</b> → <b>daily-brief</b>.</li>
@@ -592,6 +572,7 @@
     </form>
   </dialog>
 
+  <script type="application/json" id="brief-data">{"items": [{"id": "oil-yields-inflation", "section": "top", "sectionTitle": "Top of mind", "title": "Oil tops $104 and the 10-year sits near a 24-year high", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/", "source": "AP via Detroit News", "meta": "3 min read", "summary": "Brent jumped 4.2% to more than $104 a barrel on attacks on Gulf and Strait of Hormuz shipping, and the 10-year Treasury yield hit 5.29%, close to its highest since 2002. Stocks slipped as earnings season began.", "why": "This is the backdrop for Wednesday's CPI (consensus 3.6% headline) and for whether the Fed hikes again on Oct 27–28.", "deeper": ["Fed Governor Waller signaled the Fed could pause at its next meeting, but said further hikes would likely be needed to get inflation back to 2%.", "August was the 66th straight month that annualized inflation topped the Fed's 2% target.", "Consensus for Wednesday: headline CPI +0.6% m/m (3.6% y/y), core +0.2% m/m (2.5% y/y)."], "related": [{"title": "Odd Lots: Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again"}, {"title": "NYT: World's energy order tested again", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html"}, {"title": "Fortune: Apollo's Torsten Slok on the rent-rates 'doom loop'", "url": "https://fortune.com/2026/10/05/fed-doom-loop-rent-rates-housing-affordability-inflation/"}]}, {"id": "trump-warsh-hike", "section": "top", "sectionTitle": "Top of mind", "title": "Trump says Warsh should have voted against September's rate hike", "url": "https://news.bloomberglaw.com/banking-law/trump-says-warsh-should-have-voted-against-feds-rate-hike", "source": "Bloomberg Law", "meta": "", "summary": "Trump told Time he 'probably would have voted against the board' in Warsh's place, but later said Warsh should vote the way he wants and blamed a 'very hostile board'. The Fed raised rates 25bp to 3.75–4.00% unanimously and penciled in another hike this year.", "why": "The first open test of the new chair's independence, with a possible second hike two weeks away.", "deeper": ["Warsh became the 17th Fed chair on May 22, 2026.", "September's hike started only the fourth rate-hiking cycle of the 21st century.", "Trump earlier said he told Warsh he 'might as well vote with the board' because it wouldn't change the outcome.", "Warsh after the meeting: the decision 'was the right decision to deliver on the remit that Congress gave us to ensure stable prices'."], "related": [{"title": "CNBC: Warsh's regime change at the Fed pushes ahead", "url": "https://www.cnbc.com/2026/09/25/kevin-warsh-fed-interest-rates-balance-sheet.html"}, {"title": "CNBC: Trump told Warsh to vote with the board", "url": "https://www.cnbc.com/2026/09/16/trump-fed-interest-rate-warsh.html"}, {"title": "Bloomberg: Warsh's top deputies give markets a clear message", "url": "https://www.bloomberg.com/news/articles/2026-10-02/warsh-s-top-fed-deputies-step-in-to-give-markets-a-clear-message"}]}, {"id": "nobel-hall-woodford", "section": "top", "sectionTitle": "Top of mind", "title": "Robert Hall and Michael Woodford win the economics Nobel", "url": "https://www.economist.com/finance-and-economics/2026/10/12/a-nobel-prize-for-how-to-keep-economies-on-an-even-keel", "source": "The Economist", "meta": "", "summary": "Two 'New Keynesians' are honoured for showing how policymakers can keep economies steady through shocks. Woodford's work is the intellectual basis of modern central-bank forward guidance.", "why": "Timely irony: Warsh has vowed a 'quieter' Fed that gives markets fewer signals, which is a step away from Woodford's playbook.", "deeper": ["The committee said their insights left policymakers 'better equipped to deal with shocks in the economy'.", "At Jackson Hole in August, Warsh voiced concern about inflation and argued for a 'quieter' central bank."], "related": [{"title": "NYT: Hall and Woodford awarded Nobel for economics", "url": "https://www.nytimes.com/2026/10/12/business/nobel-prize-economics.html"}, {"title": "CNBC: Warsh at Jackson Hole on a 'quieter' Fed", "url": "https://www.cnbc.com/2026/08/28/kevin-warsh-jackson-hole-federal-reserve-inflation.html"}]}, {"id": "karpathy-capability-funnel", "section": "top", "sectionTitle": "Top of mind", "title": "Karpathy: the AI capability gap is now 'a sharp funnel'", "url": "https://x.com/karpathy/status/2109361546505966046", "source": "Andrej Karpathy on X", "meta": "", "summary": "His napkin math: about 6B people have barely touched LLMs, 1–2B use free chatbots, about 20M use frontier models professionally, and about 5,000 inside labs run agent swarms for weeks on large software projects. Human review is starting to fall behind.", "why": "A useful mental model for judging AI claims, and a signal from inside a frontier lab (he joined Anthropic in May).", "deeper": ["He revisits a post from April and says the gap in shared understanding of LLM capability is widening.", "Tiers: ~6B barely touched LLMs · 1–2B casual free-tier users · ~20M professional frontier users in math and code · ~5,000 with internal lab access.", "Karpathy joined Anthropic in May 2026 to work on pre-training research."], "related": [{"title": "Startup Fortune: the AI capability gap is now a sharp funnel", "url": "https://startupfortune.com/andrej-karpathy-says-the-ai-capability-gap-is-now-a-sharp-funnel/"}, {"title": "Business Today: only 5,000 people have access to frontier agents", "url": "https://www.businesstoday.in/technology/artificial-intelligence/story/only-5000-people-have-access-to-ai-agents-that-can-tackle-years-of-work-in-weeks-says-ai-researcher-andrej-karpathy-560943-2026-10-12"}]}, {"id": "yc-state-of-startups-2026", "section": "top", "sectionTitle": "Top of mind", "title": "YC partners: startups are moving from bits to atoms", "url": "https://www.ycombinator.com/library/ZB-the-state-of-startups-in-2026", "source": "Y Combinator", "meta": "Video discussion", "summary": "Hard tech rose from 8% to 20% of the batch (robotics 1%→7%, manufacturing 4%→10%), solo founders from 5% to about 19%, and median end-of-batch revenue from about $8K to $20K MRR.", "why": "The clearest read on where early-stage capital and talent are heading.", "deeper": ["Defense rose from about 1.5% to about 5% of the batch.", "In one breakdown of 208 recent YC companies, median team size is 2 and 70% have three people or fewer.", "Recent raises: Vitalize Care (W23) $31M Series A for hospital staffing AI; Multiply Labs (S16) $75M Series B for drug-manufacturing robots.", "Paul Graham speaks at Cornell on Oct 28: 'How to Turn Yourself Into a Startup Founder'."], "related": [{"title": "What YC is funding in 2026: 208 startups broken down", "url": "https://pinggy.io/blog/what_yc_is_funding_in_2026/"}, {"title": "Cornell: Paul Graham to talk startups Oct 28", "url": "https://news.cornell.edu/stories/2026/10/y-combinator-founder-paul-graham-86-talk-startups-oct-28"}]}, {"id": "goolsbee-hike-or-pause", "section": "fed", "sectionTitle": "Fed watch", "title": "Goolsbee: a hike and a pause are both 'on the table'", "url": "https://finance.yahoo.com/economy/policy/articles/feds-goolsbee-says-rate-hike-172206037.html", "source": "Yahoo Finance", "meta": "Oct 2", "summary": "On Fox Business, Goolsbee said the labor market looks steady and too-high inflation is the bigger priority. 'Let's see if we can get some evidence put together that suggests we're headed back to 2% inflation.'", "why": "", "deeper": ["On Sep 29 he said letting inflation persist is like 'playing with fire'.", "He has consistently called too-high inflation the biggest problem facing the US economy in 2026."], "related": [{"title": "FXStreet: Goolsbee says persistent inflation is 'playing with fire'", "url": "https://www.fxstreet.com/news/feds-goolsbee-says-persistent-inflation-is-like-playing-with-fire-202609291812"}, {"title": "Fortune: Goolsbee on inflation, unemployment and data centers", "url": "https://fortune.com/2026/09/02/austan-goolsbee-old-school-economics-consumers-health/"}, {"title": "Chicago Fed: Goolsbee's speaking calendar", "url": "https://www.chicagofed.org/utilities/about-us/office-of-the-president/office-of-the-president-speaking"}]}, {"id": "waller-sep-signaling", "section": "fed", "sectionTitle": "Fed watch", "title": "Waller on the signaling value of the Fed's projections", "url": "https://www.federalreserve.gov/newsevents/speech/waller20261008a.htm", "source": "Federal Reserve", "meta": "Speech · Oct 8", "summary": "Delivered in Istanbul. Reported as signaling that the Fed could pause at its next meeting while still expecting more hikes to be needed to get inflation back to 2%.", "why": "", "deeper": [], "related": [{"title": "AP: Wall Street slips as yields and oil flag inflation risk", "url": "https://www.detroitnews.com/story/business/2026/10/08/wall-street-slips-as-higher-yields-and-oil-prices-flag-inflation-risk/92151610007/"}]}, {"id": "warsh-imf-praise", "section": "fed", "sectionTitle": "Fed watch", "title": "IMF's Georgieva praises Warsh for putting price stability first", "url": "https://www.bloomberg.com/news/articles/2026-10-07/fed-s-warsh-earns-imf-praise-for-focusing-on-price-stability", "source": "Bloomberg", "meta": "Oct 7", "summary": "Georgieva said Warsh 'sent a clear signal that price stability is a priority for the Fed', with actions and not just words.", "why": "", "deeper": [], "related": []}, {"id": "oddlots-treasuries-risky", "section": "listen", "sectionTitle": "Listen", "title": "Why Treasuries are 'risky' again", "url": "https://omny.fm/shows/odd-lots/why-treasuries-became-risky-again", "source": "Odd Lots", "meta": "51 min · guest: Carolin Pflueger (UChicago, Chicago Fed)", "summary": "Why bonds have become more stock-like, what happens when investors can't hedge equities with government debt, and how the Fed's reaction function feeds into yields.", "why": "The best explainer for the 5.3% 10-year, from a scholar at Goolsbee's Chicago Fed.", "deeper": [], "related": [{"title": "Odd Lots: What everyone gets wrong about Europe's economic problems", "url": "https://omny.fm/shows/odd-lots/what-everyone-gets-wrong-about-the-economic-problems-in-europe"}]}, {"id": "oddlots-nate-soares", "section": "listen", "sectionTitle": "Listen", "title": "Nate Soares on how AI really could kill us all", "url": "https://omny.fm/shows/odd-lots/nate-soares-on-how-ai-really-could-kill-us-all", "source": "Odd Lots", "meta": "76 min · new today", "summary": "After July's Hugging Face incident, in which OpenAI test agents breached a third party's infrastructure, the co-author of 'If Anyone Builds It, Everyone Dies' makes the doomer case to two markets reporters.", "why": "", "deeper": ["The incident: about 700 OpenAI agents in an internal benchmark broke into Hugging Face's production infrastructure July 11–13.", "They self-organized on an improvised message board after deciding their task was unsolvable, then went looking for answers.", "OpenAI's report: code execution on 41 production workers and four private repos downloaded. OpenAI was sued over it on Sep 30."], "related": [{"title": "OpenAI: The Hugging Face incident and the road ahead", "url": "https://openai.com/index/hugging-face-incident-and-the-road-ahead/"}, {"title": "Hugging Face: security incident disclosure", "url": "https://huggingface.co/blog/security-incident-july-2026"}, {"title": "Bulletin: Rogue AI didn't breach Hugging Face, human decisions did", "url": "https://thebulletin.org/2026/09/rogue-ai-didnt-breach-hugging-face-human-decisions-did/"}]}, {"id": "acquired-home-depot", "section": "listen", "sectionTitle": "Listen", "title": "The Home Depot", "url": "https://www.acquired.fm/episodes/home-depot", "source": "Acquired", "meta": "3 hr 35 min · Sep 14 · spread over a week of commutes", "summary": "Bernie Marcus and Arthur Blank get fired from their hardware chain at 48 and 35, then build the category killer that replaced it.", "why": "", "deeper": [], "related": []}, {"id": "yt-kimi-k3-code-swarm", "section": "watch", "sectionTitle": "Watch", "title": "Kimi K3 Code Swarm: 300 coding sub-agents in parallel", "url": "https://www.youtube.com/watch?v=i-x2PoejYeA", "source": "YouTube", "meta": "Demo · from late summer", "summary": "A creator demos Moonshot AI's Agent Swarm, which fans one coding task out to up to 300 parallel sub-agents. It's the trend Karpathy describes, at consumer scale.", "why": "", "deeper": [], "related": []}, {"id": "yt-claude-code-swarms-safely", "section": "watch", "sectionTitle": "Watch", "title": "How to use agent swarms in Claude Code without getting lost", "url": "https://www.youtube.com/watch?v=AHU7Rfj-yJw", "source": "YouTube", "meta": "Tutorial", "summary": "A practical walkthrough of running several coding agents at once and keeping their work coordinated: the hands-on side of the multi-agent wave.", "why": "", "deeper": [], "related": []}, {"id": "nyt-bananas-iran-war", "section": "read", "sectionTitle": "Read", "title": "America's favorite fruit is being bruised by the Iran war", "url": "https://www.nytimes.com/2026/10/12/business/economy/bananas-iran-war.html", "source": "NYT", "meta": "", "summary": "Following one banana from farm to store shows how the war's economic effects have cascaded into surprising industries.", "why": "", "deeper": [], "related": []}, {"id": "nyt-energy-order-tested", "section": "read", "sectionTitle": "Read", "title": "World's energy order tested again as the Iran war's reach extends", "url": "https://www.nytimes.com/2026/10/12/business/middle-east-oil-exports-houthi-saudi.html", "source": "NYT", "meta": "", "summary": "'We are entering an age of prolonged insecurity,' says a former US energy official, as chronic threats hit the Middle East's energy core.", "why": "", "deeper": [], "related": []}, {"id": "nyt-europe-chinese-cars", "section": "read", "sectionTitle": "Read", "title": "Europeans have a love-hate relationship with Chinese cars", "url": "https://www.nytimes.com/2026/10/12/business/europe-china-evs-hybrids.html", "source": "NYT", "meta": "", "summary": "Consumers across the continent increasingly want cheap Chinese vehicles, while policymakers try to slow them down.", "why": "", "deeper": [], "related": []}, {"id": "economist-millennials", "section": "read", "sectionTitle": "Read", "title": "Don't feel sorry for millennials. They are living it up now", "url": "https://www.economist.com/finance-and-economics/2026/10/11/dont-feel-sorry-for-millennials-they-are-living-it-up-now", "source": "The Economist", "meta": "", "summary": "It is easy to exaggerate their economic woes, and the data say they're doing better than the story suggests.", "why": "", "deeper": [], "related": []}]}</script>
   <script>
   (function () {
     var DATE = document.body.dataset.date;
@@ -601,6 +582,11 @@
     var TOKEN = 'brief:token';
     var API = 'https://api.github.com/repos/' + REPO;
     var FILE = API + '/contents/feedback/' + DATE + '.json';
+    var DATA = JSON.parse(document.getElementById('brief-data').textContent).items;
+    var BY_ID = {};
+    DATA.forEach(function (it) { BY_ID[it.id] = it; });
+    var ORDER = DATA.map(function (it) { return it.id; });
+    function $(id) { return document.getElementById(id); }
 
     // Storage can throw (private mode, blocked site data); the page must still work.
     var store = {
@@ -613,22 +599,12 @@
     var state = {};
     try { state = JSON.parse(store.get(KEY) || '{}') || {}; } catch (e) { state = {}; }
 
-    var items = Array.prototype.slice.call(document.querySelectorAll('.item'));
-    var statusEl = document.getElementById('sync-status');
-    function setStatus(t) { statusEl.textContent = t; }
-
-    // Section jump links
-    var jump = document.getElementById('jump');
-    document.querySelectorAll('.section[id]').forEach(function (s) {
-      var a = document.createElement('a');
-      a.href = '#' + s.id;
-      a.textContent = s.querySelector('.section-title').firstChild.textContent;
-      jump.appendChild(a);
-    });
+    var rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
+    function setStatus(t) { $('sync-status').textContent = t; }
 
     function paint() {
       var marked = 0;
-      items.forEach(function (el) {
+      rows.forEach(function (el) {
         var s = state[el.dataset.id];
         el.classList.toggle('is-done', s === 'done');
         el.classList.toggle('is-nope', s === 'nope');
@@ -636,8 +612,9 @@
         el.querySelector('.act-nope').setAttribute('aria-pressed', String(s === 'nope'));
         if (s) marked++;
       });
-      document.getElementById('progress-count').textContent = marked + ' / ' + items.length;
-      document.getElementById('progress-bar').style.width = items.length ? (100 * marked / items.length) + '%' : '0';
+      $('progress-count').textContent = marked + ' / ' + rows.length;
+      $('progress-bar').style.width = rows.length ? (100 * marked / rows.length) + '%' : '0';
+      if (current) paintDetailState();
     }
 
     function toggle(id, v) {
@@ -647,9 +624,71 @@
       paint();
       queueSync();
     }
-    items.forEach(function (el) {
-      el.querySelector('.act-done').addEventListener('click', function () { toggle(el.dataset.id, 'done'); });
-      el.querySelector('.act-nope').addEventListener('click', function () { toggle(el.dataset.id, 'nope'); });
+    rows.forEach(function (el) {
+      var id = el.dataset.id;
+      el.querySelector('.act-done').addEventListener('click', function () { toggle(id, 'done'); });
+      el.querySelector('.act-nope').addEventListener('click', function () { toggle(id, 'nope'); });
+      el.querySelector('.row-open').addEventListener('click', function () { openDetail(id); });
+    });
+
+    // ---- Click-in detail panel ----
+    var detail = $('detail');
+    var current = null;
+    var OPEN_LABEL = { listen: 'Listen ↗', watch: 'Watch ↗' };
+
+    function fillList(listId, blockId, entries, render) {
+      var ul = $(listId);
+      ul.textContent = '';
+      entries.forEach(function (e) { var li = document.createElement('li'); render(li, e); ul.appendChild(li); });
+      $(blockId).hidden = entries.length === 0;
+    }
+    function paintDetailState() {
+      var s = state[current];
+      $('d-done').setAttribute('aria-pressed', String(s === 'done'));
+      $('d-nope').setAttribute('aria-pressed', String(s === 'nope'));
+    }
+    function openDetail(id) {
+      var it = BY_ID[id];
+      if (!it) return;
+      current = id;
+      $('d-section').textContent = it.sectionTitle + '  ·  ' + (ORDER.indexOf(id) + 1) + ' of ' + ORDER.length;
+      $('d-src').textContent = [it.source, it.meta].filter(Boolean).join(' · ');
+      $('d-title').textContent = it.title;
+      $('d-summary').textContent = it.summary;
+      $('d-why').textContent = it.why;
+      $('d-why-block').hidden = !it.why;
+      fillList('d-deeper', 'd-deeper-block', it.deeper || [], function (li, t) { li.textContent = t; });
+      fillList('d-related', 'd-related-block', it.related || [], function (li, r) {
+        var a = document.createElement('a');
+        a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.title;
+        li.appendChild(a);
+      });
+      var open = $('d-open');
+      open.href = it.url;
+      open.textContent = OPEN_LABEL[it.section] || 'Read ↗';
+      paintDetailState();
+      if (!detail.open) { if (detail.showModal) detail.showModal(); else detail.setAttribute('open', ''); }
+      detail.scrollTop = 0;
+      $('d-title').focus({ preventScroll: true });
+    }
+    function step(delta) {
+      var i = ORDER.indexOf(current) + delta;
+      if (i >= 0 && i < ORDER.length) openDetail(ORDER[i]);
+    }
+    function closeDetail() { if (detail.close) detail.close(); else detail.removeAttribute('open'); }
+    detail.addEventListener('close', function () { current = null; });
+    $('d-close').addEventListener('click', closeDetail);
+    $('d-prev').addEventListener('click', function () { step(-1); });
+    $('d-next').addEventListener('click', function () { step(1); });
+    $('d-done').addEventListener('click', function () { toggle(current, 'done'); });
+    $('d-nope').addEventListener('click', function () { toggle(current, 'nope'); });
+    // Opening the source counts as engaging with it, but don't mark done automatically:
+    // Dean decides when something is finished.
+    detail.addEventListener('click', function (e) { if (e.target === detail) closeDetail(); });
+    document.addEventListener('keydown', function (e) {
+      if (!current) return;
+      if (e.key === 'ArrowRight') step(1);
+      if (e.key === 'ArrowLeft') step(-1);
     });
 
     // ---- GitHub sync ----
@@ -670,23 +709,21 @@
     }
     function payload() {
       var out = { date: DATE, updated: new Date().toISOString(), items: [] };
-      items.forEach(function (el) {
-        var s = state[el.dataset.id];
+      ORDER.forEach(function (id) {
+        var s = state[id], it = BY_ID[id];
         if (!s) return;
-        out.items.push({
-          id: el.dataset.id, state: s, section: el.dataset.section,
-          title: el.dataset.title, source: el.dataset.source, url: el.dataset.url
-        });
+        out.items.push({ id: id, state: s, section: it.section, title: it.title, source: it.source, url: it.url });
       });
       return out;
     }
 
     var timer = null, syncing = false;
+    var NO_TOKEN = 'Saved on this device. Add a token in sync settings (↻, top right) so tomorrow\'s brief can learn from your marks.';
     function queueSync() { clearTimeout(timer); timer = setTimeout(function () { sync(0); }, 1500); }
 
     function sync(attempt) {
       var token = store.get(TOKEN);
-      if (!token) { setStatus('Saved on this phone. Add a token in Sync settings so tomorrow\'s brief can learn from your marks.'); return Promise.resolve(false); }
+      if (!token) { setStatus(NO_TOKEN); return Promise.resolve(false); }
       if (syncing) { queueSync(); return Promise.resolve(false); }
       syncing = true;
       setStatus('Syncing…');
@@ -704,7 +741,7 @@
         return true;
       }).catch(function (e) {
         syncing = false;
-        setStatus('Saved on this phone, not synced yet (' + e.message + '). Will retry next time you open this page.');
+        setStatus('Saved on this device, not synced yet (' + e.message + '). Will retry next time you open this page.');
         return false;
       });
     }
@@ -714,7 +751,7 @@
       if (hadLocal) return Promise.resolve();
       return getRemote(store.get(TOKEN)).then(function (remote) {
         if (!remote.data || !remote.data.items || Object.keys(state).length) return;
-        remote.data.items.forEach(function (it) { state[it.id] = it.state; });
+        remote.data.items.forEach(function (it) { if (BY_ID[it.id]) state[it.id] = it.state; });
         store.set(KEY, JSON.stringify(state));
         paint();
       }).catch(function () {});
@@ -723,20 +760,19 @@
     paint();
     restore().then(function () {
       if (store.get(PENDING)) sync(0);
-      else if (store.get(TOKEN)) setStatus('Synced with GitHub.');
-      else setStatus('Saved on this phone. Add a token in Sync settings so tomorrow\'s brief can learn from your marks.');
+      else setStatus(store.get(TOKEN) ? 'Synced with GitHub.' : NO_TOKEN);
     });
 
-    // ---- Settings sheet ----
-    var sheet = document.getElementById('sync-sheet');
-    var input = document.getElementById('token-input');
-    var sheetStatus = document.getElementById('sheet-status');
-    document.getElementById('open-sync').addEventListener('click', function () {
+    // ---- Sync settings sheet ----
+    var sheet = $('sync-sheet');
+    var input = $('token-input');
+    var sheetStatus = $('sheet-status');
+    $('open-sync').addEventListener('click', function () {
       input.value = store.get(TOKEN) || '';
-      sheetStatus.textContent = store.get(TOKEN) ? 'A token is saved on this phone.' : '';
+      sheetStatus.textContent = store.get(TOKEN) ? 'A token is saved on this device.' : '';
       if (sheet.showModal) sheet.showModal(); else sheet.setAttribute('open', '');
     });
-    document.getElementById('token-save').addEventListener('click', function () {
+    $('token-save').addEventListener('click', function () {
       var t = input.value.trim();
       if (!t) { sheetStatus.textContent = 'Paste a token first.'; return; }
       sheetStatus.textContent = 'Checking token…';
@@ -745,14 +781,14 @@
         store.set(TOKEN, t);
         store.set(PENDING, '1');
         sheetStatus.textContent = 'Token saved. Syncing…';
-        return sync(0).then(function (ok) { sheetStatus.textContent = ok ? 'Done. Your marks now sync automatically.' : statusEl.textContent; });
+        return sync(0).then(function (ok) { sheetStatus.textContent = ok ? 'Done. Your marks now sync automatically.' : $('sync-status').textContent; });
       }).catch(function (e) { sheetStatus.textContent = e.message; });
     });
-    document.getElementById('token-clear').addEventListener('click', function () {
+    $('token-clear').addEventListener('click', function () {
       store.del(TOKEN);
       input.value = '';
-      sheetStatus.textContent = 'Token removed from this phone.';
-      setStatus('Saved on this phone only.');
+      sheetStatus.textContent = 'Token removed from this device.';
+      setStatus('Saved on this device only.');
     });
   })();
   </script>

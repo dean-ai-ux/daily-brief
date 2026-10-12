@@ -62,22 +62,31 @@ Rank by: matches interests.md → feedback patterns → genuine importance → n
 A story in `top` should not also appear in `read`.
 
 ## 4. Write `data/$TODAY.json`
+The page is a dashboard: each item shows as one compact row, and tapping it opens a detail
+panel with the summary, why it matters, **Go deeper** bullets and **Related** links. The
+click-in is where Dean learns more, so fill `deeper` and `related` for every `top` and `fed`
+item and wherever else you have good material.
 ```json
 {
   "date": "2026-10-12",
   "generated": "2026-10-12T07:31:00-04:00",
-  "lede": "One or two sentences: the shape of the morning in plain English.",
+  "lede": "One or two sentences (≤ 45 words): the shape of the morning in plain English.",
   "feedback_note": "Optional, one line: how yesterday's marks changed today's picks. Omit if none.",
+  "snapshot": [
+    {"label": "10-yr Treasury", "value": "5.29%", "note": "Oct 8 · near 2002 high", "url": "https://…"}
+  ],
   "sections": [
     {"key": "top", "items": [
       {
         "id": "nobel-hall-woodford",
-        "title": "Headline in sentence case",
+        "title": "Headline in sentence case (≤ 80 chars; it's clamped to 2 lines)",
         "url": "https://…",
         "source": "NYT",
         "meta": "Optional: '6 min read' / '58 min · guest: Austan Goolsbee' / 'YouTube · 14 min'",
         "summary": "Two sentences max: what happened.",
-        "why": "One sentence: why it matters to Dean. Required in top; optional elsewhere."
+        "why": "One sentence: why it matters to Dean. Required in top; optional elsewhere.",
+        "deeper": ["2–4 short factual bullets of context, numbers, history or what to watch next."],
+        "related": [{"title": "Source: headline", "url": "https://…"}]
       }
     ]},
     {"key": "fed", "items": []},
@@ -90,9 +99,14 @@ A story in `top` should not also appear in `read`.
   ]
 }
 ```
+- `snapshot`: 3–4 market/macro tiles (e.g. 10-yr yield, oil, S&P 500, Fed funds, next big
+  data print). **Only numbers you read in a source today, with the as-of date in `note`.**
+  If you can't source a number, leave that tile out. `url` optional.
+- `deeper`: at most 5 strings. `related`: at most 4 links, each `{"title", "url"}`, from
+  URLs you actually saw. Both optional; omit rather than pad.
 - `id`: short kebab-case, unique within the day (3–60 chars, a–z 0–9 -).
 - `generated`: current ET time with offset (`TZ=America/New_York date -Iseconds`).
-- Allowed item fields only: id, title, url, source, meta, summary, why.
+- Allowed item fields only: id, title, url, source, meta, summary, why, deeper, related.
 - Plain text everywhere (no markdown, no HTML). Tight, specific, no hype.
 
 ## 5. Render and check

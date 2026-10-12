@@ -14,7 +14,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 REPO = "dean-ai-ux/daily-brief"
-SECTION_ORDER = ["top", "fed", "listen", "watch", "read"]
 SECTION_TITLES = {
     "top": "Top of mind",
     "fed": "Fed watch",
@@ -22,11 +21,16 @@ SECTION_TITLES = {
     "watch": "Watch",
     "read": "Read",
 }
-ITEM_FIELDS = {"id", "title", "url", "source", "meta", "summary", "why"}
+ITEM_FIELDS = {"id", "title", "url", "source", "meta", "summary", "why", "deeper", "related"}
+SNAPSHOT_FIELDS = {"label", "value", "note", "url"}
 
 
 def fail(msg):
     sys.exit(f"render.py: {msg}")
+
+
+def is_url(u):
+    return isinstance(u, str) and u.startswith(("https://", "http://"))
 
 
 def validate(d):
@@ -41,7 +45,7 @@ def validate(d):
     seen = set()
     for sec in d["sections"]:
         if sec.get("key") not in SECTION_TITLES:
-            fail(f"unknown section key {sec.get('key')!r}; use one of {SECTION_ORDER}")
+            fail(f"unknown section key {sec.get('key')!r}; use one of {list(SECTION_TITLES)}")
         for it in sec.get("items", []):
             missing = {"id", "title", "url", "summary"} - it.keys()
             if missing:
@@ -53,71 +57,106 @@ def validate(d):
                 fail(f"item id {it['id']!r} must be 3-60 chars of a-z, 0-9, '-'")
             if it["id"] in seen:
                 fail(f"duplicate item id {it['id']!r}")
-            if not it["url"].startswith(("https://", "http://")):
+            if not is_url(it["url"]):
                 fail(f"item {it['id']!r} url must be absolute")
+            deeper = it.get("deeper", [])
+            if not (isinstance(deeper, list) and all(isinstance(x, str) for x in deeper)) or len(deeper) > 5:
+                fail(f"item {it['id']!r} 'deeper' must be a list of at most 5 strings")
+            related = it.get("related", [])
+            if not isinstance(related, list) or len(related) > 4:
+                fail(f"item {it['id']!r} 'related' must be a list of at most 4 links")
+            for r in related:
+                if not (isinstance(r, dict) and r.keys() == {"title", "url"} and is_url(r["url"])):
+                    fail(f"item {it['id']!r} related links need exactly 'title' and an absolute 'url'")
             seen.add(it["id"])
     for r in d.get("radar", []):
         if not {"when", "what"} <= r.keys():
             fail("radar entries need 'when' and 'what'")
+    snap = d.get("snapshot", [])
+    if len(snap) > 6:
+        fail("snapshot holds at most 6 tiles")
+    for s in snap:
+        if not {"label", "value"} <= s.keys() or s.keys() - SNAPSHOT_FIELDS:
+            fail("snapshot tiles need 'label' and 'value' (optional 'note', 'url')")
+        if "url" in s and not is_url(s["url"]):
+            fail("snapshot url must be absolute")
 
 
-def render_item(sec_key, it):
-    a = lambda k: escape(it.get(k, ""), quote=True)  # noqa: E731
+ACTS = """<div class="row-acts">
+            <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+            <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+          </div>"""
+
+
+def render_row(sec_key, it):
     source = " · ".join(escape(x) for x in (it.get("source"), it.get("meta")) if x)
-    why = (
-        f'<p class="item-why"><span class="why-label">Why it matters</span> {a("why")}</p>'
-        if it.get("why") else ""
-    )
     return f"""
-      <article class="item" data-id="{a('id')}" data-section="{sec_key}" data-title="{a('title')}" data-source="{a('source')}" data-url="{a('url')}">
-        <div class="item-body">
-          {f'<p class="item-source">{source}</p>' if source else ''}
-          <h3 class="item-title"><a href="{a('url')}" target="_blank" rel="noopener">{a('title')}</a></h3>
-          <div class="item-more">
-            <p class="item-summary">{a('summary')}</p>
-            {why}
-          </div>
-        </div>
-        <div class="item-actions">
-          <button type="button" class="act act-done" aria-pressed="false" aria-label="Mark done" title="Done">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        <li class="row" data-id="{escape(it['id'], quote=True)}">
+          <button type="button" class="row-open" aria-haspopup="dialog">
+            {f'<span class="row-src">{source}</span>' if source else ''}
+            <span class="row-title">{escape(it['title'])}</span>
+            <span class="row-sum">{escape(it['summary'])}</span>
           </button>
-          <button type="button" class="act act-nope" aria-pressed="false" aria-label="Not for me" title="Not for me">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
-          </button>
-        </div>
-      </article>"""
+          {ACTS}
+        </li>"""
 
 
-def render_sections(d):
-    by_key = {s["key"]: s for s in d["sections"]}
-    out = []
-    for key in SECTION_ORDER:
-        sec = by_key.get(key)
-        if not sec or not sec.get("items"):
-            continue
-        items = "".join(render_item(key, it) for it in sec["items"])
-        out.append(f"""
-    <section class="section" id="{key}">
-      <h2 class="section-title">{SECTION_TITLES[key]}<span class="section-count">{len(sec['items'])}</span></h2>
-      {items}
-    </section>""")
-    return "".join(out)
-
-
-def render_radar(d):
-    rows = d.get("radar", [])
-    if not rows:
-        return ""
-    lis = "".join(
-        f'<li><span class="radar-when">{escape(r["when"])}</span><span class="radar-what">{escape(r["what"])}</span></li>'
-        for r in rows
-    )
+def render_card(key, title, body, count=None):
+    badge = f'<span class="card-count">{count}</span>' if count is not None else ""
     return f"""
-    <section class="section" id="radar">
-      <h2 class="section-title">On the radar</h2>
-      <ul class="radar">{lis}</ul>
+    <section class="card card-{key}" id="{key}" aria-labelledby="{key}-h">
+      <h2 class="card-title" id="{key}-h">{title}{badge}</h2>
+      {body}
     </section>"""
+
+
+def render_grid(d):
+    by_key = {s["key"]: s for s in d["sections"] if s.get("items")}
+    cards = []
+    for key, title in SECTION_TITLES.items():
+        sec = by_key.get(key)
+        if sec:
+            rows = "".join(render_row(key, it) for it in sec["items"])
+            cards.append(render_card(key, title, f'<ul class="rows">{rows}</ul>', len(sec["items"])))
+    radar = d.get("radar", [])
+    if radar:
+        lis = "".join(
+            f'<li><span class="radar-when">{escape(r["when"])}</span><span class="radar-what">{escape(r["what"])}</span></li>'
+            for r in radar
+        )
+        cards.append(render_card("radar", "On the radar", f'<ul class="radar">{lis}</ul>'))
+    flags = " ".join(f"has-{k}" for k in list(by_key) + (["radar"] if radar else []))
+    return f'<div class="grid {flags}">{"".join(cards)}</div>'
+
+
+def render_snapshot(d):
+    tiles = []
+    for s in d.get("snapshot", []):
+        inner = (
+            f'<span class="tile-label">{escape(s["label"])}</span>'
+            f'<span class="tile-value">{escape(s["value"])}</span>'
+            + (f'<span class="tile-note">{escape(s["note"])}</span>' if s.get("note") else "")
+        )
+        if s.get("url"):
+            tiles.append(f'<a class="tile" href="{escape(s["url"], quote=True)}" target="_blank" rel="noopener">{inner}</a>')
+        else:
+            tiles.append(f'<div class="tile">{inner}</div>')
+    return f'<div class="snapshot">{"".join(tiles)}</div>' if tiles else ""
+
+
+def page_data(d):
+    """Item details the click-in panel needs, embedded as JSON."""
+    items = []
+    for sec in d["sections"]:
+        for it in sec.get("items", []):
+            items.append({
+                "id": it["id"], "section": sec["key"], "sectionTitle": SECTION_TITLES[sec["key"]],
+                "title": it["title"], "url": it["url"], "source": it.get("source", ""),
+                "meta": it.get("meta", ""), "summary": it["summary"], "why": it.get("why", ""),
+                "deeper": it.get("deeper", []), "related": it.get("related", []),
+            })
+    # "</" would let item text close the <script> tag early
+    return json.dumps({"items": items}, ensure_ascii=False).replace("</", "<\\/")
 
 
 def render_page(d, base, is_latest):
@@ -130,14 +169,15 @@ def render_page(d, base, is_latest):
         "{{DATE}}": d["date"],
         "{{REPO}}": REPO,
         "{{TITLE}}": f"Brief · {day:%a %b} {day.day}",
-        "{{WEEKDAY}}": f"{day:%A}",
-        "{{DATE_LONG}}": f"{day:%B} {day.day}, {day:%Y}",
+        "{{DATE_SHORT}}": f"{day:%a %b} {day.day}",
+        "{{DATE_LONG}}": f"{day:%A, %B} {day.day}",
         "{{GENERATED}}": f"{gen.hour % 12 or 12}:{gen:%M}{'am' if gen.hour < 12 else 'pm'} ET",
         "{{LEDE}}": escape(d["lede"]),
-        "{{SECTIONS}}": render_sections(d),
-        "{{RADAR}}": render_radar(d),
+        "{{SNAPSHOT}}": render_snapshot(d),
+        "{{GRID}}": render_grid(d),
         "{{FEEDBACK_NOTE}}": f'<p class="feedback-note">{escape(note)}</p>' if note else "",
         "{{LATEST_LINK}}": "" if is_latest else f'<a class="latest-link" href="{base}index.html">Today →</a>',
+        "{{DATA}}": page_data(d),
     }
     for k, v in subs.items():
         template = template.replace(k, v)
@@ -159,13 +199,12 @@ def render_archive_index():
     page = (ROOT / "template.html").read_text()
     # Reuse the template's head and styles; swap the body for a plain list.
     head = page.split("<body", 1)[0].replace("{{TITLE}}", "Brief · Archive").replace("{{BASE}}", "../")
-    return f"""{head}<body data-page="archive">
+    return f"""{head}<body class="archive-page">
+  <header class="top"><div class="top-row">
+    <a class="brand" href="../index.html">Daily Brief</a><span class="top-date">Archive</span>
+  </div></header>
   <main class="wrap">
-    <header class="masthead">
-      <div class="masthead-row"><a class="brand" href="../index.html">Daily Brief</a></div>
-      <h1 class="date-line">Archive</h1>
-    </header>
-    <section class="section"><ul class="radar archive">{''.join(rows)}</ul></section>
+    <section class="card"><ul class="radar archive">{''.join(rows)}</ul></section>
   </main>
 </body>
 </html>
